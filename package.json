@@ -2,7 +2,9 @@
   "name": "migrate",
   "private": "true",
   "scripts": {
-    "get-raw": "dotenv -- r2rml4net -c \"Server=$SERVER;Database=$DATABASE;User Id=$USERNAME;Password=$PASSWORD\" -m mapping.ttl -o out/raw.nq"
+    "mapping": "r2rml4net -c \"Server=$SERVER;Database=$DATABASE;User Id=$USERNAME;Password=$PASSWORD\" -m mapping.ttl -o out/raw.trig",
+    "get-raw": "dotenv -- npm run mapping",
+    "transform": "eye --quiet --nope --pass-only-new rules/*.n3 --trig out/raw.trig | sed s/sem:quotedGraph// > out/wikibus.trig"
   },
   "dependencies": {
     "dotenv-cli": "^8.0.0"
