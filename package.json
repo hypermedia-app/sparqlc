@@ -1,12 +1,14 @@
 {
-  "name": "migrate",
-  "private": "true",
-  "scripts": {
-    "mapping": "r2rml4net -c \"Server=$SERVER;Database=$DATABASE;User Id=$USERNAME;Password=$PASSWORD\" -m mapping.ttl -o out/raw.trig",
-    "get-raw": "dotenv -- npm run mapping",
-    "transform": "eye --quiet --nope --pass-only-new rules/*.n3 --trig out/raw.trig | sed s/sem:quotedGraph// > out/wikibus.trig"
-  },
-  "dependencies": {
-    "dotenv-cli": "^8.0.0"
+  "name": "wikibus",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "app",
+    "migrate",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
   }
 }

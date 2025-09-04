@@ -1,0 +1,16 @@
+{
+  "name": "sparqlc",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@hydrofoil/sparql-processor": "^0.2.0",
+    "@zazuko/env": "^3.0.1",
+    "sparql-http-client": "^3.0.1",
+    "sparqljs": "^3.7.3"
+  },
+  "devDependencies": {
+    "@types/sparqljs": "^3.1.12",
+    "@types/sparql-http-client": "^3"
+  }
+}
