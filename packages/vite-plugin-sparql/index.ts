@@ -2,6 +2,7 @@ import { Plugin } from 'vite';
 import { parseDocument } from 'htmlparser2'
 import { load } from 'cheerio'
 import { sparqlToMetaScript } from './sparqlToMetaScript.js';
+import {compile} from "sparqlc";
 
 export function selectMeta(endpoint: string): Plugin {
     return {
@@ -21,6 +22,13 @@ export function selectMeta(endpoint: string): Plugin {
 
                 return $.html()
             }
+        },
+        transform(code, id) {
+            if (id.endsWith('.rq')) {
+                return 'export default ' + compile(code)
+            }
+
+            return code
         }
     }
 }

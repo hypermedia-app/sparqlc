@@ -8,8 +8,8 @@ export function compile(query: string) {
     async function execute(client: SparqlClient, params: URLSearchParams) {
         const query = queryObject
 
-        const { default: Processor } = await import('@hydrofoil/sparql-processor')
-        const { default: $rdf } = await import ('@zazuko/env/web.js')
+        const {default: Processor} = await import('@hydrofoil/sparql-processor')
+        const {default: $rdf} = await import ('@zazuko/env/web.js')
 
         const processor = new (class extends Processor {
             override processTriple(triple: sparqljs.Triple) {
@@ -28,10 +28,19 @@ export function compile(query: string) {
             }
         })($rdf)
 
-        const { Generator } = await import('sparqljs')
+        const {Generator} = await import('sparqljs')
 
         const processed = processor.process(query)
-        return client.query.select(new Generator().stringify(processed) )
+        if (query.type !== 'query') {
+            throw new Error('Only queries are supported')
+        }
+
+        let method = query.queryType.toLowerCase()
+        if (method === 'describe') {
+            method = 'construct'
+        }
+
+        return client.query[method](new Generator().stringify(processed))
     }
 
     return execute.toString().replace('queryObject', JSON.stringify(queryObject))
