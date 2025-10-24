@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "@hydrofoil/sparql-processor": "^0.2.0",
-    "@zazuko/env": "^3.0.1",
+    "@rdfjs/data-model": "^2.1.1",
+    "@rdfjs/term-map": "^2.0.2",
     "sparql-http-client": "^3.0.1",
     "sparqljs": "^3.7.3"
   },

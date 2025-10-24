@@ -3,6 +3,7 @@ import { parseDocument } from 'htmlparser2'
 import { load } from 'cheerio'
 import { sparqlToMetaScript } from './sparqlToMetaScript.js';
 import {compile} from "sparqlc";
+import * as fs from "node:fs";
 
 export function selectMeta(endpoint: string): Plugin {
     return {
@@ -13,12 +14,12 @@ export function selectMeta(endpoint: string): Plugin {
                 const dom = parseDocument(html)
                 const $ = load(dom)
 
-                $('script[type="application/sparql-query"][meta]:not([src])').each((_, el) => {
-                    const metaScript = sparqlToMetaScript($(el).text(), endpoint)
-                    const scriptTag = `<script type="module" ssr>${metaScript}</script>`
+                const metaScriptSrc = ctx.filename + '.meta.rq'
+                if (fs.existsSync(metaScriptSrc)) {
+                    const metaScript = sparqlToMetaScript(fs.readFileSync(metaScriptSrc).toString(), endpoint)
 
-                    $(el).replaceWith(scriptTag)
-                })
+                    $('head').append(`<script type="module" ssr>${metaScript}</script>`)
+                }
 
                 return $.html()
             }
