@@ -1,5 +1,5 @@
 import { Plugin } from 'vite';
-import { parseDocument } from 'htmlparser2'
+import { parse } from 'parse5'
 import { load } from 'cheerio'
 import { sparqlToMetaScript } from './sparqlToMetaScript.js';
 import {compile} from "sparqlc";
@@ -11,8 +11,8 @@ export function selectMeta(endpoint: string): Plugin {
         transformIndexHtml: {
             order: 'pre',
             handler(html, ctx) {
-                const dom = parseDocument(html)
-                const $ = load(dom)
+                //const dom = parse(html)
+                const $ = load(html)
 
                 const metaScriptSrc = ctx.filename + '.meta.rq'
                 if (fs.existsSync(metaScriptSrc)) {

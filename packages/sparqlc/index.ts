@@ -68,7 +68,8 @@ export function compile(query: string) {
             method = 'construct'
         }
 
-        return client.query[method](new Generator().stringify(processed))
+        const queryString = new Generator().stringify(processed)
+        return client.query[method](queryString)
     }
 
     return execute.toString().replace('queryObject', JSON.stringify(queryObject))

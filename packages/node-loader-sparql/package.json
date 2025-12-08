@@ -1,0 +1,9 @@
+{
+  "name": "node-loader-sparql",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "sparqlc": "*"
+  }
+}
