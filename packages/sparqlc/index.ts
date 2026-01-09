@@ -1,6 +1,6 @@
-import sparqljs, {Parser} from "sparqljs";
+import sparqljs, {Parser, Query} from "sparqljs";
 import type {Stream, Term} from "@rdfjs/types";
-import {StreamClient} from "sparql-http-client";
+import { StreamClient } from "sparql-http-client/StreamClient.js";
 import { Environment } from "@rdfjs/environment/Environment.js";
 import {DataFactory} from "@rdfjs/types";
 
@@ -12,7 +12,12 @@ export interface QueryExecutor<T extends boolean | void | Stream = boolean | voi
     (...params: [...Params[], StreamClient, Env]): Promise<T>
 }
 
-export function compile(query: string) {
+interface CompileResult {
+    code: string
+    queryType: Query['queryType'] | 'UPDATE'
+}
+
+export function compile(query: string): CompileResult {
     const parser = new Parser()
     const queryObject = parser.parse(query)
 
@@ -72,5 +77,12 @@ export function compile(query: string) {
         return client.query[method](queryString)
     }
 
-    return execute.toString().replace('queryObject', JSON.stringify(queryObject))
+    const queryType = queryObject.type === 'query'
+        ? queryObject.queryType
+        : 'UPDATE'
+
+    return {
+        queryType,
+        code: execute.toString().replace('queryObject', JSON.stringify(queryObject))
+    }
 }
