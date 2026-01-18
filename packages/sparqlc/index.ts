@@ -1,6 +1,6 @@
-import sparqljs, {Parser, Query} from "sparqljs";
+import sparqljs, {FunctionCallExpression, Parser, Query} from "sparqljs";
 import type {Stream, Term} from "@rdfjs/types";
-import { StreamClient } from "sparql-http-client/StreamClient.js";
+import {Client, StreamClient} from "sparql-http-client";
 import { Environment } from "@rdfjs/environment/Environment.js";
 import {DataFactory} from "@rdfjs/types";
 
@@ -8,8 +8,8 @@ export type Params = URLSearchParams | Map<Term, Term> | Record<string, Term>;
 
 export type Env = Environment<DataFactory>
 
-export interface QueryExecutor<T extends boolean | void | Stream = boolean | void | Stream> {
-    (...params: [...Params[], StreamClient, Env]): Promise<T>
+export interface QueryExecutor<T extends boolean | void | Stream = boolean | void | Stream, C extends Client = Client> {
+    (...params: [...Params[], C, Env]): Promise<T>
 }
 
 interface CompileResult {
@@ -40,8 +40,19 @@ export function compile(query: string): CompileResult {
         const {default: Processor} = await import('@hydrofoil/sparql-processor')
 
         const processor = new (class extends Processor {
+            get param() {
+                return this.factory.namedNode('https://sparqlc.described.at/param')
+            }
+
+            processFunctionCall(functionCall: FunctionCallExpression) {
+                if (typeof functionCall.function === 'object' && this.param.equals(functionCall.function)) {
+                    return params.get(functionCall.args[0])
+                }
+                return super.processFunctionCall(functionCall);
+            }
+
             override processTriple(triple: sparqljs.Triple) {
-                if ('termType' in triple.predicate && triple.predicate.value === 'https://sparqlc.described.at/param') {
+                if ('termType' in triple.predicate && this.param.equals(triple.predicate)) {
                     const paramName = triple.object
                     const varName = triple.subject.value
                     const expression = params.get(paramName)
