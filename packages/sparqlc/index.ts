@@ -1,19 +1,20 @@
-import sparqljs, {FunctionCallExpression, Parser, Query} from "sparqljs";
+import {Parser, Query} from "sparqljs";
 import type {Stream, Term} from "@rdfjs/types";
 import {Client, StreamClient} from "sparql-http-client";
 import { Environment } from "@rdfjs/environment/Environment.js";
-import {DataFactory} from "@rdfjs/types";
+import {DataFactory, Literal} from "@rdfjs/types";
 
-export type Params = URLSearchParams | Map<Term, Term> | Record<string, Term>;
+export type Params = URLSearchParams | Map<Literal, Term> | Record<string, Term>;
 
 export type Env = Environment<DataFactory>
 
-export interface QueryExecutor<T extends boolean | void | Stream = boolean | void | Stream, C extends Client = Client> {
-    (...params: [...Params[], C, Env]): Promise<T>
+export interface QueryExecutor<T extends boolean | void | Stream = boolean | void | Stream, C extends Client | undefined = Client> {
+    (...params: [...Params[], Env] | [...Params[], Env, C]): C extends undefined ? Promise<string> : Promise<T>
 }
 
 interface CompileResult {
     code: string
+    execute: QueryExecutor
     queryType: Query['queryType'] | 'UPDATE'
 }
 
@@ -23,54 +24,31 @@ export function compile(query: string): CompileResult {
 
     const execute: QueryExecutor = async function (...args) {
         const {isClient, isEnv, toTermMap} = await import('sparqlc/runtime.js')
-        const TermMap = (await import('@rdfjs/term-map')).default
+        const { createProcessor } = await import('sparqlc/processor.js')
 
-        const env = args.pop()
-        if(!isEnv(env)) {
-            throw new Error('Last argument must be an Env instance')
+        let client: Client | undefined
+        let env: Env | undefined
+
+        const lastArg = args[args.length - 1]
+        const secondLastArg = args[args.length - 2]
+
+        if (isClient(lastArg)) {
+            client = lastArg
+            env = secondLastArg as Env
+            args.splice(-2)
+        } else if (isEnv(lastArg)) {
+            env = lastArg
+            args.splice(-1)
         }
 
-        const client = args.pop()
-        if (!isClient(client)) {
-            throw new Error('Second last argument must be a SparqlClient instance')
+        if (!isEnv(env)) {
+            throw new Error('Parameters must be followed by an instance of RDF/JS environment')
         }
-        const params = (args as Params[]).reduce(toTermMap, new TermMap())
+
+        const params = (args as Params[]).reduce((map: Map<string, Term>, p) => toTermMap(map, p), new Map())
         const query = queryObject
 
-        const {default: Processor} = await import('@hydrofoil/sparql-processor')
-
-        const processor = new (class extends Processor {
-            get param() {
-                return this.factory.namedNode('https://sparqlc.described.at/param')
-            }
-
-            processFunctionCall(functionCall: FunctionCallExpression) {
-                if (typeof functionCall.function === 'object' && this.param.equals(functionCall.function)) {
-                    return params.get(functionCall.args[0])
-                }
-                return super.processFunctionCall(functionCall);
-            }
-
-            override processTriple(triple: sparqljs.Triple) {
-                if ('termType' in triple.predicate && this.param.equals(triple.predicate)) {
-                    const paramName = triple.object
-                    const varName = triple.subject.value
-                    const expression = params.get(paramName)
-
-                    if(!expression) {
-                        throw new Error(`No value provided for parameter ${paramName.value}`)
-                    }
-
-                    return <sparqljs.BindPattern>{
-                        type: 'bind',
-                        variable: this.factory.variable!(varName),
-                        expression,
-                    }
-                }
-
-                return triple
-            }
-        })(env)
+        const processor = await createProcessor(env, params)
 
         const {Generator} = await import('sparqljs')
 
@@ -85,6 +63,10 @@ export function compile(query: string): CompileResult {
         }
 
         const queryString = new Generator().stringify(processed)
+        if(!client) {
+            return queryString
+        }
+
         return client.query[method](queryString)
     }
 
@@ -94,6 +76,7 @@ export function compile(query: string): CompileResult {
 
     return {
         queryType,
+        execute,
         code: execute.toString().replace('queryObject', JSON.stringify(queryObject))
     }
 }

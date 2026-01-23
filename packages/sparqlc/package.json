@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "main": "index.js",
+  "bin": {
+    "sparqlc": "./bin/sparqlc.sh"
+  },
   "dependencies": {
     "@hydrofoil/sparql-processor": "^0.2.0",
     "@rdfjs/data-model": "^2.1.1",
