@@ -1,70 +1,81 @@
-import sparqljs, {ConstructQuery, SparqlQuery} from "sparqljs";
-import {Environment} from "@rdfjs/environment/Environment";
-import {DataFactory, Term} from "@rdfjs/types";
+import sparqljs, {ConstructQuery} from "sparqljs";
+import {Term} from "@rdfjs/types";
+import {shrink} from "@zazuko/prefixes";
+import QueryAnalyzer, {Env} from "./QueryAnalyzer";
 
-export async function createProcessor(env: Environment<DataFactory>, params: Map<string, Term>) {
-    const {default: Processor} = await import('@hydrofoil/sparql-processor')
-
-    return new class extends Processor {
-        private readonly vars: Set<string> = new Set()
-
-        get param() {
-            return this.factory.namedNode('https://sparqlc.described.at/param')
+export default class extends QueryAnalyzer {
+    private paramVariable(varKey: Term) {
+        if (['Quad', 'BlankNode', 'Variable', 'DefaultGraph'].includes(varKey.termType)) {
+            throw new Error('Only NamedNodes and Literals are supported as parameters')
         }
 
-        private paramVariable(name: string) {
-            return this.factory.variable!(`_param_${name}`)
+        if (varKey.termType === 'Literal') {
+            return this.factory.variable!(`_param_${varKey.value}`)
         }
 
-        processConstructQuery(query: ConstructQuery): ConstructQuery {
-            const processed = super.processConstructQuery(query);
-            const values = <sparqljs.ValuesPattern>{
-                type: 'values',
-                values: [
-                    Object.fromEntries([...this.vars].map(v => ["?" + this.paramVariable(v).value, params.get(v)]))
-                ],
-            }
-
-            return {
-                ...processed,
-                where: [
-                    values,
-                    ...processed.where || [],
-                ]
-            }
+        const shrunk = shrink(varKey.value)?.replace(':', '_')
+        if (shrunk) {
+            return this.factory.variable!(`_param_${shrunk}`)
         }
 
-        processFunctionCall(functionCall: sparqljs.FunctionCallExpression) {
-            if (typeof functionCall.function === 'object' && this.param.equals(functionCall.function)) {
-                const varName = functionCall.args[0]
-                if ('value' in varName && varName.termType === 'Literal') {
-                    this.vars.add(varName.value)
-                    return this.paramVariable(varName.value)
-                }
+        const url = new URL(varKey.value)
+        const lastSegmentOrHash = url.hash?.substring(1) || url.pathname.split('/').pop()!
+        return this.factory.variable!(`_param_${lastSegmentOrHash}`)
+    }
 
-                throw new Error(`Expected literal value for parameter name, got ${varName}`)
-            }
-            return super.processFunctionCall(functionCall);
+    constructor(factory: Env, private params: Map<Term, Term | Term[]>) {
+        super(factory);
+    }
+
+    processConstructQuery(query: ConstructQuery): ConstructQuery {
+        const processed = super.processConstructQuery(query);
+        if (this.parameters.size === 0) {
+            return processed;
         }
 
-        override processTriple(triple: sparqljs.Triple) {
-            if ('termType' in triple.predicate && this.param.equals(triple.predicate)) {
-                const paramName = triple.object
-                const varName = triple.subject.value
-                const expression = params.get(paramName.value)
+        const values = <sparqljs.ValuesPattern>{
+            type: 'values',
+            values: [
+                Object.fromEntries([...this.parameters].flatMap(v => {
+                    const valueOrArray = this.params.get(v)
+                    if (Array.isArray(valueOrArray)) {
+                        return valueOrArray.map(value => ["?" + this.paramVariable(v).value, value]);
+                    }
+                    if (valueOrArray) {
+                        return [["?" + this.paramVariable(v).value, valueOrArray]];
+                    }
 
-                if(!expression) {
-                    throw new Error(`No value provided for parameter ${paramName.value}`)
-                }
-
-                return <sparqljs.BindPattern>{
-                    type: 'bind',
-                    variable: this.factory.variable!(varName),
-                    expression,
-                }
-            }
-
-            return triple
+                    return []
+                }))
+            ],
         }
-    }(env)
+
+        return {
+            ...processed,
+            where: [
+                values,
+                ...processed.where || [],
+            ]
+        }
+    }
+
+    override processParamFunctionCall(varTerm: Term) {
+        return this.paramVariable(varTerm)
+    }
+
+    override processParamTriple(triple: sparqljs.Triple) {
+        const paramTerm = triple.object
+        const varName = triple.subject.value
+        const expression = this.params.get(paramTerm)
+
+        if (!expression) {
+            throw new Error(`No value provided for parameter ${paramTerm.value}`)
+        }
+
+        return <sparqljs.BindPattern>{
+            type: 'bind',
+            variable: this.factory.variable!(varName),
+            expression,
+        }
+    }
 }

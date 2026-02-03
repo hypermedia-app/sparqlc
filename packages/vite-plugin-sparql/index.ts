@@ -1,5 +1,4 @@
 import { Plugin } from 'vite';
-import { parse } from 'parse5'
 import { load } from 'cheerio'
 import { sparqlToMetaScript } from './sparqlToMetaScript.js';
 import {compile} from "sparqlc";
@@ -27,31 +26,7 @@ export function selectMeta(endpoint: string): Plugin {
         transform(code, id) {
             if (id.endsWith('.rq')) {
                 const compiled = compile(code)
-                let returnType: string
-                switch (compiled.queryType) {
-                    case 'SELECT':
-                        returnType = '{}'
-                        break
-                    case 'CONSTRUCT':
-                    case 'DESCRIBE':
-                        returnType = 'Stream'
-                        break
-                    case 'ASK':
-                        returnType = 'boolean'
-                        break
-                    case "UPDATE":
-                        returnType = 'void'
-                        break
-                    default:
-                       returnType = 'unknown'
-                }
-
-                fs.writeFileSync(id+'.d.ts', `import {QueryExecutor} from "sparqlc";
-import {Stream} from "@rdfjs/types";
-
-declare const query: QueryExecutor<${returnType}>
-export default query
-`)
+                compiled.writeTypes(id)
 
                 return 'export default ' + compiled.code
             }

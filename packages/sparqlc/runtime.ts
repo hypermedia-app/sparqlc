@@ -8,22 +8,18 @@ export function isEnv(arg: Env | unknown): arg is Env {
     return typeof arg === 'object' && arg !== null && 'dataset' in arg && typeof arg.dataset === 'function'
 }
 
-export function isClient(arg: StreamClient | unknown): arg is StreamClient {
-    return typeof arg === 'object' && arg !== null && 'query' in arg && typeof arg.query === 'object'
-}
-
-export function toTermMap(map: Map<string, Term>, params: Params): Map<string, Term> {
+export function toTermMap(map: Map<Term, Term | Term[]>, params: Params): Map<Term, Term | Term[]> {
     if (params instanceof URLSearchParams) {
         for (const [key, value] of params.entries()) {
-            map.set(key, rdf.literal(value))
+            map.set(rdf.literal(key), rdf.literal(value))
         }
     } else if (Symbol.iterator in params) {
         for (const [key, value] of params.entries()) {
-            map.set(key.value, value)
+            map.set(key, value)
         }
     } else {
         for (const key of Object.keys(params)) {
-            map.set(key, params[key])
+            map.set(rdf.literal(key), params[key])
         }
     }
 

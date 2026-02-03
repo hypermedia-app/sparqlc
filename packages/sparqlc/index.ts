@@ -1,21 +1,30 @@
-import {Parser, Query} from "sparqljs";
+import {Parser} from "sparqljs";
 import type {Stream, Term} from "@rdfjs/types";
 import {Client, StreamClient} from "sparql-http-client";
-import { Environment } from "@rdfjs/environment/Environment.js";
-import {DataFactory, Literal} from "@rdfjs/types";
+import * as fs from "node:fs";
+import QueryAnalyzer from "./QueryAnalyzer.js";
+import type { Env } from "./QueryAnalyzer.js";
+import rdf from "@zazuko/env";
+import Processor from "@hydrofoil/sparql-processor";
 
-export type Params = URLSearchParams | Map<Literal, Term> | Record<string, Term>;
+export type { Env } from "./QueryAnalyzer.js";
 
-export type Env = Environment<DataFactory>
+export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term>;
 
-export interface QueryExecutor<T extends boolean | void | Stream = boolean | void | Stream, C extends Client | undefined = Client> {
-    (...params: [...Params[], Env] | [...Params[], Env, C]): C extends undefined ? Promise<string> : Promise<T>
+interface ExecuteOptions<C extends Client | undefined = Client> {
+    env: Env
+    client?: C
+    processors?: Processor[]
+}
+
+export interface QueryExecutor<T extends boolean | void | Stream | Record<string, Term>[] = boolean | void | Stream | Record<string, Term>[], C extends Client | undefined = Client> {
+    (...params: [...Params[], ExecuteOptions]): C extends undefined ? Promise<string> : Promise<T>
 }
 
 interface CompileResult {
     code: string
     execute: QueryExecutor
-    queryType: Query['queryType'] | 'UPDATE'
+    writeTypes(path: string): void
 }
 
 export function compile(query: string): CompileResult {
@@ -23,36 +32,24 @@ export function compile(query: string): CompileResult {
     const queryObject = parser.parse(query)
 
     const execute: QueryExecutor = async function (...args) {
-        const {isClient, isEnv, toTermMap} = await import('sparqlc/runtime.js')
-        const { createProcessor } = await import('sparqlc/processor.js')
+        const {isEnv, toTermMap} = await import('sparqlc/runtime.js')
+        const { default: Processor } = await import('sparqlc/processor.js')
+        const {default: TermMap} = await import('@rdfjs/term-map')
 
-        let client: Client | undefined
-        let env: Env | undefined
-
-        const lastArg = args[args.length - 1]
-        const secondLastArg = args[args.length - 2]
-
-        if (isClient(lastArg)) {
-            client = lastArg
-            env = secondLastArg as Env
-            args.splice(-2)
-        } else if (isEnv(lastArg)) {
-            env = lastArg
-            args.splice(-1)
-        }
+        const {client, env, processors = []} = args.pop() as unknown as ExecuteOptions
 
         if (!isEnv(env)) {
-            throw new Error('Parameters must be followed by an instance of RDF/JS environment')
+            throw new Error('Parameters must be followed by executor options. `env` is required.')
         }
 
-        const params = (args as Params[]).reduce((map: Map<string, Term>, p) => toTermMap(map, p), new Map())
+        const params = (args as Params[]).reduce((map: Map<Term, Term | Term[]>, p) => toTermMap(map, p), new TermMap())
         const query = queryObject
 
-        const processor = await createProcessor(env, params)
+        const paramsProcessor = new Processor(env, params)
 
         const {Generator} = await import('sparqljs')
 
-        const processed = processor.process(query)
+        const processed = [paramsProcessor, ...processors].reduce((query, processor) => processor.process(query), query)
         if (query.type !== 'query') {
             throw new Error('Only queries are supported')
         }
@@ -63,20 +60,27 @@ export function compile(query: string): CompileResult {
         }
 
         const queryString = new Generator().stringify(processed)
-        if(!client) {
+        if (!client) {
             return queryString
         }
 
         return client.query[method](queryString)
     }
 
-    const queryType = queryObject.type === 'query'
-        ? queryObject.queryType
-        : 'UPDATE'
+    const analyzer = new QueryAnalyzer(rdf)
+    analyzer.process(queryObject)
+    const { returnType } = analyzer
 
     return {
-        queryType,
         execute,
-        code: execute.toString().replace('queryObject', JSON.stringify(queryObject))
+        code: execute.toString().replace('queryObject', JSON.stringify(queryObject)),
+        writeTypes(srcPath: string) {
+            fs.writeFileSync(srcPath + '.d.ts', `import {QueryExecutor} from "sparqlc";
+import {Stream} from "@rdfjs/types";
+export type ResultType = ${returnType}
+declare const query: QueryExecutor<ResultType>
+export default query
+`)
+        }
     }
 }
