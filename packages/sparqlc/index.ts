@@ -47,7 +47,8 @@ export function compile(query: string): CompileResult {
 
         const paramsProcessor = new Processor(env, params)
 
-        const {Generator} = await import('sparqljs')
+        const { default: sparqljs } = await import('sparqljs');
+        const { Generator } = sparqljs;
 
         const processed = [paramsProcessor, ...processors].reduce((query, processor) => processor.process(query), query)
         if (query.type !== 'query') {
