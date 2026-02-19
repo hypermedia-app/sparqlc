@@ -1,0 +1,12 @@
+{
+  "name": "esbuild-plugin-sparql",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "sparqlc": "^0.0.0"
+  },
+  "peerDependencies": {
+    "esbuild": ">=0.14.0"
+  }
+}
