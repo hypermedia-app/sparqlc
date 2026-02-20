@@ -3,13 +3,31 @@
   "version": "0.0.0",
   "type": "module",
   "main": "index.js",
+  "files": [
+    "CHANGELOG.md",
+    "*.js",
+    "*.d.ts"
+  ],
+  "scripts": {
+    "test": "mocha",
+    "build": "tsc",
+    "prepack": "npm run build"
+  },
+  "author": "Tomasz Pluskiewicz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hypermedia-app/sparqlc",
+    "directory": "packages/vite-plugin-sparql"
+  },
   "dependencies": {
+    "sparqlc": "^0.0.0",
     "sparqljs": "^3.7.3"
   },
   "peerDependencies": {
-    "sparqlc": "*"
+    "vite": ">=6"
   },
   "devDependencies": {
-    "sparqlc": "*"
+    "vite": "^7.0.0"
   }
 }

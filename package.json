@@ -1,23 +1,36 @@
 {
-  "name": "wikibus",
+  "name": "sparqlc-monorepo",
   "private": true,
   "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "lint": "eslint . --quiet --ignore-path .gitignore",
+    "test": "npm run --ws --if-present test",
+    "release": "changeset publish"
+  },
   "workspaces": [
-    "app",
-    "migrate",
     "packages/*"
   ],
-  "scripts": {
-    "postinstall": "patch-package"
-  },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "patch-package": "^8.0.1",
-    "rollup-plugin-node-polyfills": "^0.2.1",
+    "@tpluscode/eslint-config": "^0.6.4",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "tsx": "^4.20.4",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
-  "dependencies": {
-    "esbuild-node-externals": "^1.20.1"
+  "c8": {
+    "all": true,
+    "reporters": [
+      "lcovonly",
+      "text-summary"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix --quiet"
+    ]
   }
 }

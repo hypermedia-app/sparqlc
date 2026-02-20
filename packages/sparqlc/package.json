@@ -6,14 +6,36 @@
   "bin": {
     "sparqlc": "./bin/sparqlc.sh"
   },
+  "files": [
+    "CHANGELOG.md",
+    "bin",
+    "*.js",
+    "*.d.ts"
+  ],
+  "scripts": {
+    "test": "mocha",
+    "build": "tsc",
+    "prepack": "npm run build"
+  },
+  "author": "Tomasz Pluskiewicz",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hypermedia-app/sparqlc",
+    "directory": "packages/sparqlc"
+  },
   "dependencies": {
-    "@hydrofoil/sparql-processor": "^0.2.0",
+    "@hydrofoil/sparql-processor": "^0.2.1",
     "@rdfjs/data-model": "^2.1.1",
     "@rdfjs/term-map": "^2.0.2",
+    "@zazuko/env": "^3.0.1",
+    "@zazuko/prefixes": "^2.6.1",
+    "rdf-string": "^2.0.1",
     "sparql-http-client": "^3.0.1",
     "sparqljs": "^3.7.3"
   },
   "devDependencies": {
+    "@types/rdfjs__term-map": "^2.0.10",
     "@types/sparqljs": "^3.1.12",
     "@types/sparql-http-client": "^3"
   }

@@ -1,17 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2024",
     "module": "NodeNext",
-    "moduleResolution": "bundler",
-    "allowArbitraryExtensions": true,
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false,
     "strict": true,
-    "strictNullChecks": true,
-    "types": [
-      "vite/client"
-    ]
+    "strictNullChecks": true
   }
 }
