@@ -9,7 +9,8 @@
     "*.d.ts"
   ],
   "scripts": {
-    "test": "mocha",
+    "pretest": "node --import tsx test/build.ts",
+    "test": "node test/out/index.js | grep -q 'Hello, esbuild!'",
     "build": "tsc",
     "prepack": "npm run build"
   },
@@ -25,5 +26,9 @@
   },
   "peerDependencies": {
     "esbuild": ">=0.14.0"
+  },
+  "devDependencies": {
+    "@zazuko/env": "^3.0.1",
+    "esbuild-node-externals": "^1.20.1"
   }
 }
