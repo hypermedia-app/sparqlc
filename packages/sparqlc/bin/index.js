@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import * as fs from 'node:fs'
-import $rdf from '@zazuko/env'
+import env from '@zazuko/env'
 import { stringToTerm } from 'rdf-string'
 import { compile } from '../index.js'
 
@@ -20,4 +20,4 @@ const bindings = process.argv.slice(3)
 
 const query = fs.readFileSync(filePath, 'utf8')
 const result = compile(query)
-console.log(await result.execute(Object.fromEntries(bindings), $rdf))
+console.log(await result.execute(Object.fromEntries(bindings), { env }))
