@@ -29,7 +29,6 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm ci
       - run: npm run -w sparqlc build
-        if: ${{ matrix.package.name == 'node-loader-sparql' }}
       - run: npx playwright install
         if: ${{ matrix.package.name == 'vite-plugin-sparql' }}
       - run: npx c8 --all --src ${{ matrix.package.path }} --include ${{ matrix.package.path }} --reporter lcovonly --reporter text npm run -w ${{ matrix.package.name }} test

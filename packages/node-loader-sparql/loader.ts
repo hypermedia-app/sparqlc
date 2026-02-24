@@ -30,7 +30,7 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 
     return {
       format: 'module',
-      source: `export default ${compiled.code}`,
+      source: compiled.code,
       shortCircuit: true,
     }
   }

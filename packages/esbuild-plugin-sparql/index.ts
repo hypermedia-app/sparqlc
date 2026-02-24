@@ -10,8 +10,8 @@ const sparqlPlugin: Plugin = {
       const compiled = compile(contents)
 
       return {
-        contents: `export default ${compiled.code}`,
-        loader: 'js',
+        contents: compiled.code,
+        loader: 'ts',
       }
     })
   },

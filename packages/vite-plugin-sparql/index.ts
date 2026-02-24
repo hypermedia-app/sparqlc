@@ -6,8 +6,7 @@ export default <Plugin>{
   transform(code, id) {
     if (id.endsWith('.rq')) {
       const compiled = compile(code)
-
-      return 'export default ' + compiled.code
+      return compiled.code
     }
 
     return code
