@@ -15,4 +15,13 @@ export default defineConfig({
   plugins: [
     SparqlPlugin,
   ],
+  optimizeDeps: {
+    include: [
+      '@rdfjs/term-map',
+      'sparqljs',
+      '@rdfjs/data-model',
+      '@zazuko/prefixes',
+      '@hydrofoil/sparql-processor',
+    ],
+  },
 })
