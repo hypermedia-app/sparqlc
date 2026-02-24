@@ -29,9 +29,12 @@ export default class extends QueryAnalyzer {
   }
 
   processSelectQuery(query: sparqljs.SelectQuery): sparqljs.SelectQuery {
+    const processed = super.processSelectQuery(query)
+    const values = this.parametersValuesClause
+
     return {
-      ...query,
-      variables: query.variables.map(variable => {
+      ...processed,
+      variables: processed.variables.map(variable => {
         if ('termType' in variable) return variable
 
         return <sparqljs.Wildcard>{
@@ -39,6 +42,10 @@ export default class extends QueryAnalyzer {
           value: '*',
         }
       }) as sparqljs.Variable[] | [sparqljs.Wildcard],
+      where: [
+        ...(values ? [values] : []),
+        ...processed.where || [],
+      ],
     }
   }
 
@@ -48,28 +55,36 @@ export default class extends QueryAnalyzer {
       return processed
     }
 
-    const values = <sparqljs.ValuesPattern>{
-      type: 'values',
-      values: [
-        Object.fromEntries([...this.parameters].flatMap(v => {
-          const valueOrArray = this.params.get(v)
-          if (Array.isArray(valueOrArray)) {
-            return valueOrArray.map(value => ['?' + this.paramVariable(v).value, value])
-          }
-          if (valueOrArray) {
-            return [['?' + this.paramVariable(v).value, valueOrArray]]
-          }
-
-          return []
-        })),
-      ],
-    }
+    const values = this.parametersValuesClause
 
     return {
       ...processed,
       where: [
-        values,
+        ...(values ? [values] : []),
         ...processed.where || [],
+      ],
+    }
+  }
+
+  private get parametersValuesClause(): sparqljs.ValuesPattern | null {
+    const values = Object.fromEntries([...this.parameters].flatMap(v => {
+      const valueOrArray = this.params.get(v)
+      if (Array.isArray(valueOrArray)) {
+        return valueOrArray.map(value => ['?' + this.paramVariable(v).value, value])
+      }
+      if (valueOrArray) {
+        return [['?' + this.paramVariable(v).value, valueOrArray]]
+      }
+
+      return []
+    }))
+
+    if (Object.keys(values).length === 0) return null
+
+    return {
+      type: 'values',
+      values: [
+        values,
       ],
     }
   }
