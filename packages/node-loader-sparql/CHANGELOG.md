@@ -1,5 +1,11 @@
 # node-loader-sparql
 
+## 0.1.1
+
+### Patch Changes
+
+- e8a50c1: Fix import in `module.register`
+
 ## 0.1.0
 
 ### Minor Changes
