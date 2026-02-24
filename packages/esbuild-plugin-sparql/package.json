@@ -28,6 +28,7 @@
     "esbuild": ">=0.14.0"
   },
   "devDependencies": {
+    "@types/sparql-http-client": "^3.1.0",
     "@zazuko/env": "^3.0.1",
     "esbuild-node-externals": "^1.20.1"
   }

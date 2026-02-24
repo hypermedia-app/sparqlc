@@ -1,5 +1,6 @@
 {
   "extends": [ "@tpluscode" ],
+  "plugins": ["@vitest"],
   "parserOptions": {
     "project": "./tsconfig.json"
   },
