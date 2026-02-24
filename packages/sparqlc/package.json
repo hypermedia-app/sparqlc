@@ -8,9 +8,7 @@
   },
   "files": [
     "CHANGELOG.md",
-    "bin",
-    "*.js",
-    "*.d.ts"
+    "bin"
   ],
   "scripts": {
     "test": "mocha",
@@ -36,7 +34,9 @@
   },
   "devDependencies": {
     "@types/rdfjs__term-map": "^2.0.10",
+    "@types/sinon": "^21.0.0",
     "@types/sparqljs": "^3.1.12",
-    "@types/sparql-http-client": "^3"
+    "@types/sparql-http-client": "^3",
+    "sinon": "^21.0.1"
   }
 }

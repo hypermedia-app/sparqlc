@@ -8,7 +8,6 @@ const sparqlPlugin: Plugin = {
     build.onLoad({ filter: /\.rq$/ }, async (args) => {
       const contents = await readFile(args.path, 'utf8')
       const compiled = compile(contents)
-      compiled.writeTypes(args.path)
 
       return {
         contents: `export default ${compiled.code}`,

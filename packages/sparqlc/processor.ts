@@ -1,4 +1,3 @@
-import type { ConstructQuery } from 'sparqljs'
 import type sparqljs from 'sparqljs'
 import type { Term } from '@rdfjs/types'
 import { shrink } from '@zazuko/prefixes'
@@ -29,7 +28,21 @@ export default class extends QueryAnalyzer {
     super(factory)
   }
 
-  processConstructQuery(query: ConstructQuery): ConstructQuery {
+  processSelectQuery(query: sparqljs.SelectQuery): sparqljs.SelectQuery {
+    return {
+      ...query,
+      variables: query.variables.map(variable => {
+        if ('termType' in variable) return variable
+
+        return <sparqljs.Wildcard>{
+          termType: 'Wildcard',
+          value: '*',
+        }
+      }) as sparqljs.Variable[] | [sparqljs.Wildcard],
+    }
+  }
+
+  processConstructQuery(query: sparqljs.ConstructQuery): sparqljs.ConstructQuery {
     const processed = super.processConstructQuery(query)
     if (this.parameters.size === 0) {
       return processed

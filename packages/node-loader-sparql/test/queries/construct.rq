@@ -1,0 +1,8 @@
+PREFIX ex: <http://example.org/>
+
+CONSTRUCT {
+    [] ex:says ?greeting .
+}
+WHERE {
+    BIND("Hello World" AS ?greeting)
+}

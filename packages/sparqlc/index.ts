@@ -1,6 +1,5 @@
-import * as fs from 'node:fs'
 import { Parser } from 'sparqljs'
-import type { Stream, Term } from '@rdfjs/types'
+import type { DatasetCore, Stream, Term } from '@rdfjs/types'
 import type { Client, StreamClient } from 'sparql-http-client'
 import rdf from '@zazuko/env'
 import type Processor from '@hydrofoil/sparql-processor'
@@ -17,21 +16,43 @@ interface ExecuteOptions<C extends Client | undefined = Client> {
   processors?: Processor[]
 }
 
-export interface QueryExecutor<T extends boolean | void | Stream | Record<string, Term>[] = boolean | void | Stream | Record<string, Term>[], C extends Client | undefined = Client> {
-  (...params: [...Params[], ExecuteOptions]): C extends undefined ? Promise<string> : Promise<T>
+export interface ExecuteSelect<Bindings extends Record<string, Term> = Record<string, Term>> {
+  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+  C extends undefined ? Promise<string>
+    : C extends StreamClient ? Promise<AsyncGenerator<Bindings>>
+      : Promise<Bindings[]>
 }
 
-interface CompileResult {
+export interface ExecuteConstruct {
+  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+  C extends undefined ? Promise<string>
+    : C extends StreamClient ? Promise<Stream>
+      : Promise<DatasetCore>
+}
+
+export interface ExecuteAsk {
+  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+  C extends undefined ? Promise<string> : Promise<boolean>
+}
+
+export interface ExecuteUpdate {
+  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+  C extends undefined ? Promise<string> : Promise<void>
+}
+
+type Query = {
   code: string
-  execute: QueryExecutor
-  writeTypes(path: string): void
+  returnType: string
+  execute: ExecuteSelect | ExecuteConstruct | ExecuteAsk | ExecuteUpdate
 }
 
-export function compile(query: string): CompileResult {
+export function compile(query: string): Query {
   const parser = new Parser()
   const queryObject = parser.parse(query)
 
-  const execute: QueryExecutor = async function (...args) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const execute: Query['execute'] = async function (...args) {
     const { isEnv, toTermMap } = await import('sparqlc/runtime.js')
     const { default: Processor } = await import('sparqlc/processor.js')
     const { default: TermMap } = await import('@rdfjs/term-map')
@@ -74,14 +95,7 @@ export function compile(query: string): CompileResult {
 
   return {
     execute,
+    returnType,
     code: execute.toString().replace('queryObject', JSON.stringify(queryObject)),
-    writeTypes(srcPath: string) {
-      fs.writeFileSync(srcPath + '.d.ts', `import {QueryExecutor} from "sparqlc";
-import {Stream} from "@rdfjs/types";
-export type ResultType = ${returnType}
-declare const query: QueryExecutor<ResultType>
-export default query
-`)
-    },
   }
 }

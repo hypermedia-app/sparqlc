@@ -22,5 +22,19 @@
   },
   "dependencies": {
     "sparqlc": "^0.0.0"
+  },
+  "devDependencies": {
+    "@rdfjs/types": "^2",
+    "@types/chai": "^5.2.3",
+    "@zazuko/env": "^3.0.0",
+    "chai": "^6.2.2",
+    "mocha-chai-rdf": "^0.1.11"
+  },
+  "mocha": {
+    "spec": "test/**/*.test.ts",
+    "require": [
+      "node-loader-sparql",
+      "tsx"
+    ]
   }
 }

@@ -1,0 +1,3 @@
+SELECT ?greeting {
+    BIND("Hello World" AS ?greeting)
+}

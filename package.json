@@ -13,11 +13,14 @@
   ],
   "devDependencies": {
     "@tpluscode/eslint-config": "^0.6.4",
+    "@types/mocha": "^10.0.10",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
+    "mocha": "^11.7.5",
+    "ts-patch": "^3.3.0",
     "tsx": "^4.20.4",
     "typescript": "^5.9.3"
   },

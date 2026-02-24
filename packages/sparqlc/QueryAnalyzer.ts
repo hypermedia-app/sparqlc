@@ -21,19 +21,24 @@ export default class <F extends Env = Env> extends Processor<Env> {
 
   get returnType() {
     switch (this.queryType) {
-      case 'SELECT':
-        return `Array<{ ${[...this.selectVars].map(expr => {
-          const varName = 'termType' in expr ? expr.value : expr.variable.value
+      case 'SELECT': {
+        const varNames = [...this.selectVars].map(expr => {
+          return 'termType' in expr ? expr.value : expr.variable.value
+        })
 
-          return `${varName}: import('@rdfjs/types').Term`
-        }).join('; ')} }>`
+        if (varNames.includes('*') || varNames.length === 0) {
+          return 'Select<Record<string, Term>>'
+        }
+
+        return `Select<Record<${varNames.map(v => `'${v}'`).join(' | ')}, Term>>`
+      }
       case 'CONSTRUCT':
       case 'DESCRIBE':
-        return 'Stream'
+        return 'Construct'
       case 'ASK':
-        return 'boolean'
+        return 'Ask'
       case 'UPDATE':
-        return 'void'
+        return 'Update'
       default:
         return 'unknown'
     }

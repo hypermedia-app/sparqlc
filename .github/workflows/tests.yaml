@@ -28,9 +28,10 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm ci
+      - run: npm run -w sparqlc build
       - run: npx c8 --all --src ${{ matrix.package.path }} --include ${{ matrix.package.path }} --reporter lcovonly --reporter text npm run -w ${{ matrix.package.name }} test
       - name: Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.package.name }}

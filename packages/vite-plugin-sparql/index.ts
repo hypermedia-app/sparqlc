@@ -6,7 +6,6 @@ export default <Plugin>{
   transform(code, id) {
     if (id.endsWith('.rq')) {
       const compiled = compile(code)
-      compiled.writeTypes(id)
 
       return 'export default ' + compiled.code
     }
