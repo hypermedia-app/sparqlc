@@ -1,3 +1,3 @@
 import module from 'node:module'
 
-module.register('./loader.ts', import.meta.url)
+module.register('./loader.js', import.meta.url)
