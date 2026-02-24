@@ -40,10 +40,12 @@ export interface ExecuteUpdate {
   C extends undefined ? Promise<string> : Promise<void>
 }
 
+export type Execute = ExecuteSelect | ExecuteConstruct | ExecuteAsk | ExecuteUpdate
+
 type Query = {
   code: string
   returnType: string
-  execute: ExecuteSelect | ExecuteConstruct | ExecuteAsk | ExecuteUpdate
+  execute: Execute
 }
 
 export function compile(query: string): Query {
