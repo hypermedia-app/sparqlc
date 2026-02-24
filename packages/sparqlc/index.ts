@@ -3,14 +3,14 @@ import type { DatasetCore, Stream, Term } from '@rdfjs/types'
 import type { Client, StreamClient } from 'sparql-http-client'
 import rdf from '@zazuko/env'
 import type Processor from '@hydrofoil/sparql-processor'
-import QueryAnalyzer from './QueryAnalyzer.js'
 import type { Env } from './QueryAnalyzer.js'
+import QueryAnalyzer from './QueryAnalyzer.js'
 
 export type { Env } from './QueryAnalyzer.js'
 
 export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term>;
 
-interface ExecuteOptions<C extends Client | undefined = Client> {
+export interface ExecuteOptions<C extends Client | undefined = Client> {
   env: Env
   client?: C
   processors?: Processor[]
@@ -40,12 +40,10 @@ export interface ExecuteUpdate {
   C extends undefined ? Promise<string> : Promise<void>
 }
 
-export type Execute = ExecuteSelect | ExecuteConstruct | ExecuteAsk | ExecuteUpdate
-
 type Query = {
   code: string
   returnType: string
-  execute: Execute
+  execute: ExecuteSelect | ExecuteConstruct | ExecuteAsk | ExecuteUpdate
 }
 
 export function compile(query: string): Query {

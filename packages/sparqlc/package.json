@@ -8,7 +8,9 @@
   },
   "files": [
     "CHANGELOG.md",
-    "bin"
+    "bin",
+    "*.js",
+    "*.d.ts"
   ],
   "scripts": {
     "test": "mocha",
