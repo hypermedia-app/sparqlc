@@ -5,11 +5,11 @@
   "main": "index.js",
   "files": [
     "CHANGELOG.md",
-    "*.js",
-    "*.d.ts"
+    "index.js",
+    "index.d.ts"
   ],
   "scripts": {
-    "test": "mocha",
+    "test": "vitest",
     "build": "tsc",
     "prepack": "npm run build"
   },
@@ -21,13 +21,17 @@
     "directory": "packages/vite-plugin-sparql"
   },
   "dependencies": {
-    "sparqlc": "^0.0.0",
-    "sparqljs": "^3.7.3"
+    "sparqlc": "^0.0.0"
   },
   "peerDependencies": {
     "vite": ">=6"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@vitest/browser": "^4.0.18",
+    "@vitest/browser-playwright": "^4.0.18",
+    "playwright": "^1.58.2",
+    "sparql-http-client": "^3.1.0",
     "vite": "^7.0.0"
   }
 }
