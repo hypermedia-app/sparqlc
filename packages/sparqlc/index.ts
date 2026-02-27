@@ -1,3 +1,4 @@
+import './global.js'
 import fs from 'node:fs'
 import { Parser } from 'sparqljs'
 import type { DatasetCore, Stream, Term } from '@rdfjs/types'
