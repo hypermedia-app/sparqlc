@@ -1,12 +1,11 @@
 import type { DatasetCore, Stream, Term } from '@rdfjs/types'
 import type { ParsingClient, StreamClient } from 'sparql-http-client'
 import sinon from 'sinon'
-import { create } from '@zazuko/env'
+import env from '@zazuko/env'
 import { createStore } from 'mocha-chai-rdf/store.js'
 import { expect, use } from 'chai'
 import snapshots from 'mocha-chai-rdf/snapshots.js'
 import type { ExecuteAsk, ExecuteConstruct, ExecuteSelect, ExecuteUpdate } from '../index.js'
-const env = create()
 
 const fruits = env.namespace('http://example.org/fruits/')
 
