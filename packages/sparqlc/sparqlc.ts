@@ -1,4 +1,6 @@
 import fs from 'node:fs'
+import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
 import { Parser } from 'sparqljs'
 import type { DatasetCore, Stream, Term } from '@rdfjs/types'
 import type { Client } from 'sparql-http-client'
@@ -7,6 +9,8 @@ import rdf from '@zazuko/env'
 import type Processor from '@hydrofoil/sparql-processor'
 import type { Env } from './QueryAnalyzer.js'
 import QueryAnalyzer from './QueryAnalyzer.js'
+
+const require = createRequire(import.meta.url)
 
 export type { Env } from './QueryAnalyzer.js'
 
@@ -45,7 +49,7 @@ export interface ExecuteUpdate {
 export type Execute = ExecuteSelect | ExecuteConstruct | ExecuteAsk | ExecuteUpdate
 
 type Query = {
-  code: string
+  module: string
   returnType: string
   execute: Execute
 }
@@ -60,11 +64,28 @@ export function compile(query: string): Query {
 
   const moduleTemplate = fs.readFileSync(new URL('./moduleTemplate.js', import.meta.url), 'utf-8')
 
+  let module = moduleTemplate.replace('queryObject', JSON.stringify(queryObject))
   return {
-    execute() {
-      throw new Error('temp')
+    async execute(...args) {
+      module = [
+        'sparqlc/processor.js',
+        'sparqlc/runtime.js',
+        'sparqljs',
+        '@rdfjs/term-map',
+      ].reduce(resolveModule, module)
+      const encodedCode = Buffer.from(module).toString('base64')
+      const moduleDataUri = `data:text/javascript;base64,${encodedCode}`
+      const { default: execute } = await import(moduleDataUri)
+
+      return execute(...args)
     },
     returnType,
-    code: moduleTemplate.replace('queryObject', JSON.stringify(queryObject)),
+    module,
   }
+}
+
+function resolveModule(module: string, importSpecifier: string) {
+  const path = require.resolve(importSpecifier)
+  const importUrl = pathToFileURL(path).href
+  return module.replace(`'${importSpecifier}'`, `'${importUrl}'`)
 }

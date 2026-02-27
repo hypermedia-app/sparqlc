@@ -43,7 +43,7 @@ Below you’ll find usage for each package.
 ## 1) `sparqlc` (core)
 
 `sparqlc` compiles a SPARQL string into a small executable function with:
-- `code` – the emitted function source (stringified)
+- `module` – the emitted JS module which default-exports a function to execute the query
 - `returnType` – inferred SPARQL result kind: `Select | Construct | Ask | Update | unknown`
 - `execute` – a function that, when given parameters and an executor `{ env, client, processors }`, will either:
   - return a SPARQL string (when no `client` is provided), or
