@@ -1,5 +1,11 @@
 # sparqlc
 
+## 0.1.2
+
+### Patch Changes
+
+- 5c42368: Parameters were not correctly applied to `CONSTRUCT` query
+
 ## 0.1.1
 
 ### Patch Changes
