@@ -2,7 +2,14 @@ import type { DatasetCore, Stream, Term } from '@rdfjs/types'
 import type { ParsingClient, StreamClient } from 'sparql-http-client'
 import sinon from 'sinon'
 import env from '@zazuko/env'
+import { createStore } from 'mocha-chai-rdf/store.js'
+import { expect, use } from 'chai'
+import snapshots from 'mocha-chai-rdf/snapshots.js'
 import type { ExecuteAsk, ExecuteConstruct, ExecuteSelect, ExecuteUpdate } from '../index.js'
+
+const fruits = env.namespace('http://example.org/fruits/')
+
+use(snapshots)
 
 describe('sparqlc', function () {
   describe('types', function () {
@@ -62,6 +69,42 @@ describe('sparqlc', function () {
         const query: ExecuteUpdate = sinon.stub()
 
         const result: void = await query({ env, client: parsingClient })
+      })
+    })
+  })
+
+  describe('execute', function () {
+    before(createStore(import.meta.url))
+
+    describe('construct query', function () {
+      it('binds parameter with named node key', async function () {
+        // given
+        const { default: query } = await import('./queries/construct-named-node-param.rq')
+        const params = env.termMap([
+          [env.ns.schema.mainEntity, fruits.Banana],
+        ])
+
+        // when
+        const result = await query(params, { env, client: this.rdf.parsingClient })
+
+        // then
+        expect(result).canonical.toMatchSnapshot()
+      })
+    })
+
+    describe('describe query', function () {
+      it('binds parameter with named node key', async function () {
+        // given
+        const { default: query } = await import('./queries/describe-named-node-param.rq')
+        const params = env.termMap([
+          [env.ns.schema.mainEntity, fruits.Banana],
+        ])
+
+        // when
+        const result = await query(params, { env, client: this.rdf.parsingClient })
+
+        // then
+        expect(result).canonical.toMatchSnapshot()
       })
     })
   })

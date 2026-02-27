@@ -50,18 +50,25 @@ export default class extends QueryAnalyzer {
   }
 
   processConstructQuery(query: sparqljs.ConstructQuery): sparqljs.ConstructQuery {
-    const processed = super.processConstructQuery(query)
+    return this.processGraphQuery(super.processConstructQuery(query))
+  }
+
+  processDescribe(query: sparqljs.DescribeQuery): sparqljs.DescribeQuery {
+    return this.processGraphQuery(super.processDescribe(query))
+  }
+
+  private processGraphQuery<Q extends sparqljs.DescribeQuery | sparqljs.ConstructQuery>(query: Q): Q {
     if (this.parameters.size === 0) {
-      return processed
+      return query
     }
 
     const values = this.parametersValuesClause
 
     return {
-      ...processed,
+      ...query,
       where: [
         ...(values ? [values] : []),
-        ...processed.where || [],
+        ...query.where || [],
       ],
     }
   }
