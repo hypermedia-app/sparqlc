@@ -35,8 +35,14 @@ function init(modules) {
         const queryType = compiled.returnType === 'unknown'
           ? 'unknown'
           : `sparqlc.Execute${compiled.returnType}`
-        return `import type * as sparqlc from "sparqlc";
 
+        let bindingsType = ''
+        if (queryType.startsWith('sparqlc.ExecuteSelect')) {
+          bindingsType = `export type Bindings = ${queryType} extends sparqlc.ExecuteSelect<infer B> ? B : never;`
+        }
+
+        return `import type * as sparqlc from "sparqlc";
+${bindingsType}
 declare const _default: ${queryType}
 export default _default
 `
