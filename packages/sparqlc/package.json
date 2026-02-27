@@ -35,16 +35,20 @@
     "sparqljs": "^3.7.3"
   },
   "devDependencies": {
+    "@types/chai": "^5",
     "@types/rdfjs__term-map": "^2.0.10",
     "@types/sinon": "^21.0.0",
     "@types/sparqljs": "^3.1.12",
     "@types/sparql-http-client": "^3",
+    "mocha-chai-rdf": "^0.1.11",
+    "chai": "^6",
     "sinon": "^21.0.1"
   },
   "mocha": {
     "spec": "test/**/*.test.ts",
+    "extends": "../../package.json",
     "require": [
-      "tsx"
+      "node-loader-sparql"
     ]
   }
 }

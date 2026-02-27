@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sparqlc execute construct query binds parameter with named node key 1`] = `
+"<http://example.org/fruits/Banana> <http://www.w3.org/2000/01/rdf-schema#label> \\"Banana\\" .
+"
+`;
+
+exports[`sparqlc execute describe query binds parameter with named node key 1`] = `
+"<http://example.org/fruits/Banana> <http://example.org/fruits/hasTaste> \\"Sweet\\" .
+<http://example.org/fruits/Banana> <http://example.org/fruits/isCrunchy> \\"false\\"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+<http://example.org/fruits/Banana> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/fruits/Fruit> .
+<http://example.org/fruits/Banana> <http://www.w3.org/2000/01/rdf-schema#label> \\"Banana\\" .
+<http://example.org/fruits/Banana> <https://schema.org/color> \\"Yellow\\" .
+"
+`;

@@ -3,7 +3,6 @@
     "target": "ES2024",
     "module": "NodeNext",
     "allowArbitraryExtensions": true,
-    "esModuleInterop": true,
     "strict": true,
     "strictNullChecks": true,
     "declaration": true,
