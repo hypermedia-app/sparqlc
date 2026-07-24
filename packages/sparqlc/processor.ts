@@ -4,7 +4,7 @@ import { shrink } from '@zazuko/prefixes'
 import type { Env } from './QueryAnalyzer.js'
 import QueryAnalyzer from './QueryAnalyzer.js'
 
-export default class extends QueryAnalyzer {
+export default class Processor extends QueryAnalyzer {
   private paramVariable(varKey: Term) {
     if (['Quad', 'BlankNode', 'Variable', 'DefaultGraph'].includes(varKey.termType)) {
       throw new Error('Only NamedNodes and Literals are supported as parameters')
@@ -117,5 +117,9 @@ export default class extends QueryAnalyzer {
       variable: this.factory.variable!(varName),
       expression,
     }
+  }
+
+  override clone(): Processor {
+    return new Processor(this.factory, this.params)
   }
 }

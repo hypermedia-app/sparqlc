@@ -92,6 +92,22 @@ describe('sparqlc', function () {
       })
     })
 
+    describe('construct with subselect query', function () {
+      it('binds parameter with named node key', async function () {
+        // given
+        const { default: query } = await import('./queries/construct-subselect.rq')
+        const params = env.termMap([
+          [env.ns.schema.mainEntity, fruits.Banana],
+        ])
+
+        // when
+        const result = await query(params, { env, client: this.rdf.parsingClient })
+
+        // then
+        expect(result).canonical.toMatchSnapshot()
+      })
+    })
+
     describe('describe query', function () {
       it('binds parameter with named node key', async function () {
         // given
