@@ -5,6 +5,11 @@ exports[`sparqlc execute construct query binds parameter with named node key 1`]
 "
 `;
 
+exports[`sparqlc execute construct with subselect query binds parameter with named node key 1`] = `
+"<http://example.org/fruits/Banana> <http://www.w3.org/2000/01/rdf-schema#label> \\"Banana\\" .
+"
+`;
+
 exports[`sparqlc execute describe query binds parameter with named node key 1`] = `
 "<http://example.org/fruits/Banana> <http://example.org/fruits/hasTaste> \\"Sweet\\" .
 <http://example.org/fruits/Banana> <http://example.org/fruits/isCrunchy> \\"false\\"^^<http://www.w3.org/2001/XMLSchema#boolean> .
