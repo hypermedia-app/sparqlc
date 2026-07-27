@@ -20,7 +20,6 @@ export default async function (...args) {
   const processed = [paramsProcessor, ...processors].reduce((query, processor) => processor.process(query), query)
   if (query.type !== 'query') {
     const updateString = new Generator().stringify(processed)
-    console.log(updateString)
     return client.query.update(updateString)
   }
 
