@@ -1,3 +1,4 @@
+import type { InsertDeleteOperation } from 'sparqljs'
 import type sparqljs from 'sparqljs'
 import type { Term } from '@rdfjs/types'
 import { shrink } from '@zazuko/prefixes'
@@ -29,8 +30,7 @@ export default class Processor extends QueryAnalyzer {
   }
 
   processSelectQuery(query: sparqljs.SelectQuery): sparqljs.SelectQuery {
-    const processed = super.processSelectQuery(query)
-    const values = this.parametersValuesClause
+    const processed = this._processQuery(super.processSelectQuery(query))
 
     return {
       ...processed,
@@ -42,22 +42,35 @@ export default class Processor extends QueryAnalyzer {
           value: '*',
         }
       }) as sparqljs.Variable[] | [sparqljs.Wildcard],
-      where: [
-        ...(values ? [values] : []),
-        ...processed.where || [],
-      ],
     }
   }
 
   processConstructQuery(query: sparqljs.ConstructQuery): sparqljs.ConstructQuery {
-    return this.processGraphQuery(super.processConstructQuery(query))
+    return this._processQuery(super.processConstructQuery(query))
+  }
+
+  processInsertDeleteOperation(operation: InsertDeleteOperation): InsertDeleteOperation {
+    const processed = super.processInsertDeleteOperation(operation)
+
+    if (processed.updateType === 'insertdelete') {
+      const values = this.parametersValuesClause
+      return {
+        ...processed,
+        where: [
+          ...(values ? [values] : []),
+          ...processed.where || [],
+        ],
+      }
+    }
+
+    return processed
   }
 
   processDescribe(query: sparqljs.DescribeQuery): sparqljs.DescribeQuery {
-    return this.processGraphQuery(super.processDescribe(query))
+    return this._processQuery(super.processDescribe(query))
   }
 
-  private processGraphQuery<Q extends sparqljs.DescribeQuery | sparqljs.ConstructQuery>(query: Q): Q {
+  private _processQuery<Q extends sparqljs.Query>(query: Q): Q {
     if (this.parameters.size === 0) {
       return query
     }

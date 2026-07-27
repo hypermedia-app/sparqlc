@@ -19,7 +19,9 @@ export default async function (...args) {
 
   const processed = [paramsProcessor, ...processors].reduce((query, processor) => processor.process(query), query)
   if (query.type !== 'query') {
-    throw new Error('Only queries are supported')
+    const updateString = new Generator().stringify(processed)
+    console.log(updateString)
+    return client.query.update(updateString)
   }
 
   let method = query.queryType.toLowerCase()

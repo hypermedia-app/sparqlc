@@ -16,8 +16,10 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
   return nextResolve(specifier, context)
 }
 
+const extensionPattern = /\.r[qu](\.js)?$/
+
 export const load: LoadHook = async (url, context, nextLoad) => {
-  if (url.endsWith('.rq') || url.endsWith('.rq.js')) {
+  if (extensionPattern.test(url)) {
     const rqUrl = url.endsWith('.js') ? url.replace(/\.js$/, '') : url
     let source
     try {
