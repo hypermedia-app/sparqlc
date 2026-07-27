@@ -1,5 +1,12 @@
 # sparqlc
 
+## 0.1.3
+
+### Patch Changes
+
+- 6fd6789: Support for SPARQL updates
+- c60fffc: Exception was thrown when processing a subquery
+
 ## 0.1.2
 
 ### Patch Changes
