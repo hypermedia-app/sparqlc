@@ -1,5 +1,11 @@
 # sparqlc
 
+## 0.1.4
+
+### Patch Changes
+
+- 55acd70: Remove unwanted `console.log`
+
 ## 0.1.3
 
 ### Patch Changes
