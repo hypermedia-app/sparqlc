@@ -2,7 +2,7 @@ import type { DatasetCore, Stream, Term } from '@rdfjs/types'
 import type { ParsingClient, StreamClient } from 'sparql-http-client'
 import sinon from 'sinon'
 import env from '@zazuko/env'
-import { createStore } from 'mocha-chai-rdf/store.js'
+import { createStore, createEmpty } from 'mocha-chai-rdf/store.js'
 import { expect, use } from 'chai'
 import snapshots from 'mocha-chai-rdf/snapshots.js'
 import type { ExecuteAsk, ExecuteConstruct, ExecuteSelect, ExecuteUpdate } from '../index.js'
@@ -73,10 +73,10 @@ describe('sparqlc', function () {
     })
   })
 
-  describe('execute', function () {
+  describe('query', function () {
     before(createStore(import.meta.url))
 
-    describe('construct query', function () {
+    describe('construct', function () {
       it('binds parameter with named node key', async function () {
         // given
         const { default: query } = await import('./queries/construct-named-node-param.rq')
@@ -92,7 +92,7 @@ describe('sparqlc', function () {
       })
     })
 
-    describe('construct with subselect query', function () {
+    describe('construct with subselect', function () {
       it('binds parameter with named node key', async function () {
         // given
         const { default: query } = await import('./queries/construct-subselect.rq')
@@ -108,7 +108,7 @@ describe('sparqlc', function () {
       })
     })
 
-    describe('describe query', function () {
+    describe('describe', function () {
       it('binds parameter with named node key', async function () {
         // given
         const { default: query } = await import('./queries/describe-named-node-param.rq')
@@ -121,6 +121,100 @@ describe('sparqlc', function () {
 
         // then
         expect(result).canonical.toMatchSnapshot()
+      })
+    })
+  })
+
+  describe('update', function () {
+    describe('insert data', function () {
+      before(createEmpty)
+
+      it('writes triples to the store', async function () {
+        // given
+        const { default: query } = await import('./queries/insert-data.ru')
+
+        // when
+        await query({ env, client: this.rdf.parsingClient })
+
+        // then
+        expect(this.rdf.dataset).canonical.toMatchSnapshot()
+      })
+    })
+
+    describe('insert where', function () {
+      before(createStore(import.meta.url))
+
+      const ex = env.namespace('http://example.org/')
+
+      it('binds params and writes to store', async function () {
+        // given
+        const { default: query } = await import('./queries/insert-where-only-bind.ru')
+
+        // when
+        await query({
+          foo: ex.foo,
+          baz: env.literal('baz'),
+        }, { env, client: this.rdf.parsingClient })
+
+        // then
+        const graph = this.rdf.dataset.match(null, null, null, ex.g)
+        expect(graph).canonical.toMatchSnapshot()
+      })
+
+      it('accesses existing data', async function () {
+        // given
+        const { default: query } = await import('./queries/insert-where.ru')
+
+        // when
+        await query({
+          type: ex('fruits/Fruit'),
+        }, { env, client: this.rdf.parsingClient })
+
+        // then
+        const labels = this.rdf.graph
+          .has(env.ns.rdf.type, ex('fruits/Fruit'))
+          .out(env.ns.rdfs.label)
+        expect(labels.values).toMatchSnapshot()
+      })
+
+      it('can delete existing data', async function () {
+        // given
+        const { default: query } = await import('./queries/insert-delete.ru')
+
+        // when
+        await query({
+          type: ex('fruits/Fruit'),
+        }, { env, client: this.rdf.parsingClient })
+
+        // then
+        const labels = this.rdf.graph
+          .has(env.ns.rdf.type, ex('fruits/Fruit'))
+          .out(env.ns.rdfs.label)
+        expect(labels.values).toMatchSnapshot()
+      })
+
+      it('processes multiple operations', async function () {
+        // given
+        const { default: query } = await import('./queries/insert-multiple.ru')
+
+        // when
+        await query({
+          type: ex('fruits/Fruit'),
+        }, { env, client: this.rdf.parsingClient })
+
+        // then
+        const labels = this.rdf.graph
+          .has(env.ns.rdf.type, ex('fruits/Fruit'))
+          .out(env.ns.rdfs.label)
+        expect(labels.values).toMatchSnapshot()
+
+        const watermelon = this.rdf.dataset
+          .match(ex('fruits/Watermelon'))
+        expect(watermelon).canonical.toMatchSnapshot()
+
+        const crunchy = this.rdf.dataset
+          .match(ex('fruit/isCrunchy'))
+        expect(crunchy.size).to.eq(0)
       })
     })
   })

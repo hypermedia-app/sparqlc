@@ -1,20 +1,70 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`sparqlc execute construct query binds parameter with named node key 1`] = `
+exports[`sparqlc query construct binds parameter with named node key 1`] = `
 "<http://example.org/fruits/Banana> <http://www.w3.org/2000/01/rdf-schema#label> \\"Banana\\" .
 "
 `;
 
-exports[`sparqlc execute construct with subselect query binds parameter with named node key 1`] = `
+exports[`sparqlc query construct with subselect binds parameter with named node key 1`] = `
 "<http://example.org/fruits/Banana> <http://www.w3.org/2000/01/rdf-schema#label> \\"Banana\\" .
 "
 `;
 
-exports[`sparqlc execute describe query binds parameter with named node key 1`] = `
+exports[`sparqlc query describe binds parameter with named node key 1`] = `
 "<http://example.org/fruits/Banana> <http://example.org/fruits/hasTaste> \\"Sweet\\" .
 <http://example.org/fruits/Banana> <http://example.org/fruits/isCrunchy> \\"false\\"^^<http://www.w3.org/2001/XMLSchema#boolean> .
 <http://example.org/fruits/Banana> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/fruits/Fruit> .
 <http://example.org/fruits/Banana> <http://www.w3.org/2000/01/rdf-schema#label> \\"Banana\\" .
 <http://example.org/fruits/Banana> <https://schema.org/color> \\"Yellow\\" .
+"
+`;
+
+exports[`sparqlc update insert data writes triples to the store 1`] = `
+"<http://example.org/foo> <http://example.org/bar> <http://example.org/baz> .
+"
+`;
+
+exports[`sparqlc update insert where accesses existing data 1`] = `
+Array [
+  "APPLE",
+  "Apple",
+  "BANANA",
+  "Banana",
+  "LEMON",
+  "Lemon",
+  "GRAPE",
+  "Grape",
+]
+`;
+
+exports[`sparqlc update insert where binds params and writes to store 1`] = `
+"<http://example.org/foo> <http://example.org/bar> \\"BAZ\\" <http://example.org/g> .
+"
+`;
+
+exports[`sparqlc update insert where can delete existing data 1`] = `
+Array [
+  "APPLE",
+  "BANANA",
+  "LEMON",
+  "GRAPE",
+]
+`;
+
+exports[`sparqlc update insert where processes multiple operations 1`] = `
+Array [
+  "APPLE",
+  "BANANA",
+  "LEMON",
+  "GRAPE",
+  "WATERMELON",
+]
+`;
+
+exports[`sparqlc update insert where processes multiple operations 2`] = `
+"<http://example.org/fruits/Watermelon> <http://example.org/fruits/hasTaste> \\"Sweet\\" .
+<http://example.org/fruits/Watermelon> <http://schema.org/color> \\"Green\\" .
+<http://example.org/fruits/Watermelon> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/fruits/Fruit> .
+<http://example.org/fruits/Watermelon> <http://www.w3.org/2000/01/rdf-schema#label> \\"WATERMELON\\" .
 "
 `;
