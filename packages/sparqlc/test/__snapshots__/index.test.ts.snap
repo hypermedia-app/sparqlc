@@ -30,10 +30,10 @@ Array [
   "Apple",
   "BANANA",
   "Banana",
-  "LEMON",
-  "Lemon",
   "GRAPE",
   "Grape",
+  "LEMON",
+  "Lemon",
 ]
 `;
 
@@ -46,8 +46,8 @@ exports[`sparqlc update insert where can delete existing data 1`] = `
 Array [
   "APPLE",
   "BANANA",
-  "LEMON",
   "GRAPE",
+  "LEMON",
 ]
 `;
 
@@ -55,8 +55,8 @@ exports[`sparqlc update insert where processes multiple operations 1`] = `
 Array [
   "APPLE",
   "BANANA",
-  "LEMON",
   "GRAPE",
+  "LEMON",
   "WATERMELON",
 ]
 `;

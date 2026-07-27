@@ -174,7 +174,7 @@ describe('sparqlc', function () {
         const labels = this.rdf.graph
           .has(env.ns.rdf.type, ex('fruits/Fruit'))
           .out(env.ns.rdfs.label)
-        expect(labels.values).toMatchSnapshot()
+        expect(labels.values.sort()).toMatchSnapshot()
       })
 
       it('can delete existing data', async function () {
@@ -190,7 +190,7 @@ describe('sparqlc', function () {
         const labels = this.rdf.graph
           .has(env.ns.rdf.type, ex('fruits/Fruit'))
           .out(env.ns.rdfs.label)
-        expect(labels.values).toMatchSnapshot()
+        expect(labels.values.sort()).toMatchSnapshot()
       })
 
       it('processes multiple operations', async function () {
@@ -206,7 +206,7 @@ describe('sparqlc', function () {
         const labels = this.rdf.graph
           .has(env.ns.rdf.type, ex('fruits/Fruit'))
           .out(env.ns.rdfs.label)
-        expect(labels.values).toMatchSnapshot()
+        expect(labels.values.sort()).toMatchSnapshot()
 
         const watermelon = this.rdf.dataset
           .match(ex('fruits/Watermelon'))
