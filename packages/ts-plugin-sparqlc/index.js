@@ -31,7 +31,9 @@ function init(modules) {
         return 'export {}'
       }
       try {
-        const compiled = compile(rqSource)
+        const compiled = compile(rqSource, {
+          base: 'http://example.org/',
+        })
         const queryType = compiled.returnType === 'unknown'
           ? 'unknown'
           : `sparqlc.Execute${compiled.returnType}`
