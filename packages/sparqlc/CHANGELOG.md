@@ -1,5 +1,11 @@
 # sparqlc
 
+## 0.1.5
+
+### Patch Changes
+
+- ccfe1e2: Added support for `base` import attribute
+
 ## 0.1.4
 
 ### Patch Changes

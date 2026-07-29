@@ -1,5 +1,14 @@
 # ts-plugin-sparqlc
 
+## 0.1.2
+
+### Patch Changes
+
+- 0694c6b: Also handle `.ru` files
+- cf9c360: Type provider would fail when the query used relative URLs without `BASE`
+- Updated dependencies [ccfe1e2]
+  - sparqlc@0.1.5
+
 ## 0.1.1
 
 ### Patch Changes

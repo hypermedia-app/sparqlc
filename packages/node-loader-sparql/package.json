@@ -1,6 +1,6 @@
 {
   "name": "node-loader-sparql",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "main": "index.js",
   "files": [
@@ -21,7 +21,7 @@
     "directory": "packages/node-loader-sparql"
   },
   "dependencies": {
-    "sparqlc": "^0.1.3"
+    "sparqlc": "^0.1.5"
   },
   "devDependencies": {
     "@rdfjs/types": "^2",
