@@ -22,7 +22,8 @@ function init(modules) {
 
     function toVirtualPath(rqPath) {
       // Use the standard allowArbitraryExtensions naming: styles.css -> styles.d.css.ts
-      return rqPath.replace(/\.rq$/, '.d.rq.ts')
+      // Preserve extension for .rq and .ru: foo.rq -> foo.d.rq.ts, foo.ru -> foo.d.ru.ts
+      return rqPath.replace(/\.r([qu])$/, '.d.r$1.ts')
     }
 
     function buildDtsContent(rqSource) {
@@ -98,7 +99,7 @@ export default _default
     }
 
     const ensureVirtualFromSource = (absRqPath) => {
-      if (!absRqPath.endsWith('.rq')) return undefined
+      if (!/\.r[qu]$/.test(absRqPath)) return undefined
       const vPath = toVirtualPath(absRqPath)
 
       // Use the host's snapshot if it exists (for current buffer content), else read from disk via host
@@ -155,7 +156,7 @@ export default _default
       return vPath
     }
 
-    // Wrap resolution to redirect .rq imports to our virtual d.ts
+    // Wrap resolution to redirect .rq/.ru imports to our virtual d.ts
     const origResolveModuleNameLiterals = host.resolveModuleNameLiterals && host.resolveModuleNameLiterals.bind(host)
     if (origResolveModuleNameLiterals) {
       host.resolveModuleNameLiterals = (moduleLiterals, containingFile, redirectedReference, options, ...rest) => {
@@ -163,7 +164,7 @@ export default _default
         return resolutions.map((res, i) => {
           const lit = moduleLiterals[i]
           const spec = lit && lit.text
-          if (spec && (spec.endsWith('.rq') || spec.endsWith('.rq.js'))) {
+          if (spec && (/\.r[qu]$/.test(spec) || /\.r[qu]\.js$/.test(spec))) {
             const absRq = resolvePath(containingFile, spec)
             const vPath = ensureVirtualFromSource(absRq)
             if (vPath) {
@@ -187,7 +188,7 @@ export default _default
         const resolutions = origResolveModuleNames(moduleNames, containingFile, ...rest)
         return moduleNames.map((spec, i) => {
           const specName = typeof spec === 'string' ? spec : (spec && spec.text)
-          if (specName && (specName.endsWith('.rq') || specName.endsWith('.rq.js'))) {
+          if (specName && (/\.r[qu]$/.test(specName) || /\.r[qu]\.js$/.test(specName))) {
             const absRq = resolvePath(containingFile, specName)
             const vPath = ensureVirtualFromSource(absRq)
             if (vPath) {
@@ -206,18 +207,18 @@ export default _default
     // Host patches to serve virtual files
     if (origGetScriptSnapshot) {
       host.getScriptSnapshot = (fileName) => {
-        if (fileName.endsWith('.d.rq.ts')) {
+        if (/\.d\.r[qu]\.ts$/.test(fileName)) {
           const cached = virtualFiles.get(fileName)
           if (cached) return ts.ScriptSnapshot.fromString(cached.content)
 
           // If not in cache, try to derive it from the source .rq file
-          const rqPath = fileName.replace(/\.d\.rq\.ts$/, '.rq')
+          const rqPath = fileName.replace(/\.d\.r([qu])\.ts$/, '.r$1')
           if (ensureVirtualFromSource(rqPath)) {
             const retryCached = virtualFiles.get(fileName)
             if (retryCached) return ts.ScriptSnapshot.fromString(retryCached.content)
           }
         }
-        if (fileName.endsWith('.rq')) {
+        if (/\.r[qu]$/.test(fileName)) {
           ensureVirtualFromSource(fileName)
           // Always return the snapshot for the .rq file itself
           return origGetScriptSnapshot(fileName)
@@ -228,17 +229,17 @@ export default _default
 
     if (origGetScriptVersion) {
       host.getScriptVersion = (fileName) => {
-        if (fileName.endsWith('.d.rq.ts')) {
+        if (/\.d\.r[qu]\.ts$/.test(fileName)) {
           const cached = virtualFiles.get(fileName)
           if (cached) return cached.version
 
-          const rqPath = fileName.replace(/\.d\.rq\.ts$/, '.rq')
+          const rqPath = fileName.replace(/\.d\.r([qu])\.ts$/, '.r$1')
           if (ensureVirtualFromSource(rqPath)) {
             const retryCached = virtualFiles.get(fileName)
             if (retryCached) return retryCached.version
           }
         }
-        if (fileName.endsWith('.rq')) ensureVirtualFromSource(fileName)
+        if (/\.r[qu]$/.test(fileName)) ensureVirtualFromSource(fileName)
         return origGetScriptVersion(fileName)
       }
     }
