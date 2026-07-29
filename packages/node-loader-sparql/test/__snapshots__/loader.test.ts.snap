@@ -9,3 +9,8 @@ exports[`node-loader-sparql construct works in static import 1`] = `
 "_:c14n0 <http://example.org/says> \\"Hello World\\" .
 "
 `;
+
+exports[`node-loader-sparql update works in dynamic import 1`] = `
+"<http://example.org/foo> <http://example.org/bar> <http://example.org/baz> .
+"
+`;
