@@ -76,6 +76,28 @@ describe('sparqlc', function () {
   describe('query', function () {
     before(createStore(import.meta.url))
 
+    describe('select', function () {
+      it('applies base URI from options', async function () {
+        // given
+        const { default: query } = await import('./queries/select-relative-uris.rq', {
+          with: {
+            base: fruits().value,
+          },
+        })
+
+        // when
+        const result = await query({
+          env,
+          client: this.rdf.parsingClient,
+        })
+
+        // then
+        expect(result).to.deep.include({
+          label: env.literal('Banana'),
+        })
+      })
+    })
+
     describe('construct', function () {
       it('binds parameter with named node key', async function () {
         // given

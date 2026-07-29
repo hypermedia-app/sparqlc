@@ -7,6 +7,7 @@ import type { DatasetCore } from '@rdfjs/types'
 import select from './queries/select.rq'
 import selectAll from './queries/select-all.rq'
 import construct from './queries/construct.rq'
+import selectRelative from './queries/base.rq' with { base: 'http://example.org/'}
 
 use(matchers)
 use(snapshots)
@@ -78,6 +79,36 @@ describe('node-loader-sparql', function () {
 
       const dataset = await env.dataset().import(stream)
       expect(dataset).canonical.toMatchSnapshot()
+    })
+  })
+
+  describe('base assertion', function () {
+    it('works in static import', async function () {
+      const bindings = await selectRelative({
+        env,
+        client: this.rdf.parsingClient,
+      })
+
+      expect(bindings[0].res).to.equal(env.namedNode('http://example.org/'))
+    })
+
+    it('works in dynamic import', async function () {
+      const { default: select } = await import('./queries/base.rq', {
+        with: {
+          base: 'http://example.org/',
+        },
+      })
+
+      const bindings = await select({
+        env,
+        client: this.rdf.parsingClient,
+      })
+
+      expect(bindings[0].res).to.equal(env.namedNode('http://example.org/'))
+    })
+
+    it('fails when there is no base', async function () {
+      await expect(import('./queries/base.rq')).to.have.been.rejected
     })
   })
 })

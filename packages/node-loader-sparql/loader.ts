@@ -3,32 +3,38 @@ import { fileURLToPath } from 'node:url'
 import * as fs from 'node:fs'
 import { compile } from 'sparqlc'
 
+const extensionPattern = /\.r[qu](\.js)?$/
+
 export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
-  if (specifier.endsWith('.rq.js')) {
-    const rqSpecifier = specifier.replace(/\.js$/, '')
-    try {
-      return await nextResolve(rqSpecifier, context)
-    } catch {
-      // ignore
+  if (extensionPattern.test(specifier)) {
+    const querySpecifier = specifier.replace(/\.js$/, '')
+
+    const resolved = await nextResolve(querySpecifier, context)
+    const specifierWithAttribs = new URL(resolved.url)
+    if (context.importAttributes.base) {
+      specifierWithAttribs.searchParams.set('base', context.importAttributes.base)
     }
+
+    return { url: specifierWithAttribs.toString(), shortCircuit: true }
   }
 
   return nextResolve(specifier, context)
 }
 
-const extensionPattern = /\.r[qu](\.js)?$/
-
 export const load: LoadHook = async (url, context, nextLoad) => {
-  if (extensionPattern.test(url)) {
-    const rqUrl = url.endsWith('.js') ? url.replace(/\.js$/, '') : url
+  const resolved = new URL(url)
+
+  if (extensionPattern.test(resolved.pathname)) {
     let source
     try {
-      source = fs.readFileSync(fileURLToPath(rqUrl), 'utf8')
+      source = fs.readFileSync(fileURLToPath(resolved), 'utf8')
     } catch {
-      const result = await nextLoad(rqUrl, { ...context, format: 'module' })
+      const result = await nextLoad(resolved.href, { ...context, format: 'module' })
       source = result.source
     }
-    const compiled = compile(source!.toString())
+    const compiled = compile(source!.toString(), {
+      base: resolved.searchParams.get('base'),
+    })
 
     return {
       format: 'module',

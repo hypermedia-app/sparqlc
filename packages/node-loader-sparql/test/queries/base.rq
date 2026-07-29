@@ -1,0 +1,3 @@
+SELECT ?res {
+    BIND(<> AS ?res)
+}

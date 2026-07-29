@@ -48,7 +48,8 @@
     "spec": "test/**/*.test.ts",
     "extends": "../../package.json",
     "require": [
-      "node-loader-sparql"
+      "node-loader-sparql",
+      "./mocha-setup.js"
     ]
   }
 }
