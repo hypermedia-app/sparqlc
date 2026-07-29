@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import { Parser } from 'sparqljs'
-import type { DatasetCore, Stream, Term } from '@rdfjs/types'
+import type { DatasetCore, Stream, Term, NamedNode } from '@rdfjs/types'
 import type { Client } from 'sparql-http-client'
 import type { StreamClient } from 'sparql-http-client/StreamClient.js'
 import rdf from '@zazuko/env'
@@ -50,8 +50,16 @@ type Query = {
   execute: Execute
 }
 
-export function compile(query: string): Query {
-  const parser = new Parser()
+interface Options {
+  base?: string | NamedNode | null
+}
+
+export function compile(query: string, { base }: Options = {}): Query {
+  const baseIRI = base ? typeof base === 'string' ? base : base.value : undefined
+
+  const parser = new Parser({
+    baseIRI,
+  })
   const queryObject = parser.parse(query)
 
   const analyzer = new QueryAnalyzer(rdf)
