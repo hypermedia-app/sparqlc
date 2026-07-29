@@ -111,4 +111,26 @@ describe('node-loader-sparql', function () {
       await expect(import('./queries/base.rq')).to.have.been.rejected
     })
   })
+
+  describe('update', function () {
+    it('works in static import', async function () {
+      const bindings = await selectRelative({
+        env,
+        client: this.rdf.parsingClient,
+      })
+
+      expect(bindings[0].res).to.equal(env.namedNode('http://example.org/'))
+    })
+
+    it('works in dynamic import', async function () {
+      const { default: update } = await import('./queries/update.ru')
+
+      await update({
+        env,
+        client: this.rdf.parsingClient,
+      })
+
+      expect(this.rdf.dataset).canonical.toMatchSnapshot()
+    })
+  })
 })
