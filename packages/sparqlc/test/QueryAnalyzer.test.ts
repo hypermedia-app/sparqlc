@@ -22,6 +22,7 @@ describe('QueryAnalyzer', function () {
     // then
     expect(analyer.returnType).to.eq("Select<Record<'fruit' | 'label', Term>>")
   })
+<<<<<<< HEAD
 
   it('select with aggregations are correctly mapped to return type', function () {
     // given
@@ -61,4 +62,6 @@ describe('QueryAnalyzer', function () {
     // then
     expect(analyer.returnType).to.eq("Select<Record<'foo' | 'fruit', Term>>")
   })
+=======
+>>>>>>> 465f323 (fix: handling of `*` wildcard in `SELECT` queries)
 })
