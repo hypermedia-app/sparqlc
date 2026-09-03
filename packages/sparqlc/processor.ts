@@ -75,13 +75,13 @@ export default class Processor extends QueryAnalyzer {
   }
 
   private get parametersValuesClause(): sparqljs.ValuesPattern | null {
-    const values = Object.fromEntries([...this.parameters].flatMap(v => {
+    const values = Object.fromEntries([...this.parameters].flatMap((v) => {
       const valueOrArray = this.params.get(v)
       if (!valueOrArray) return []
 
       return (Array.isArray(valueOrArray) ? valueOrArray : [valueOrArray])
         .filter(this.isValidValuesValue)
-        .map(value => {
+        .map((value) => {
           return ['?' + this.paramVariable(v).value, value]
         })
     }))

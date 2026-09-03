@@ -6,8 +6,8 @@ CONSTRUCT {
     ?fruit rdfs:label ?label .
 } WHERE {
     SELECT * {
-      BIND (IRI(sparqlc:param(schema:mainEntity)) as ?fruit)
+        BIND (IRI(sparqlc:param(schema:mainEntity)) as ?fruit)
 
-      ?fruit rdfs:label ?label .
+        ?fruit rdfs:label ?label .
     }
 }

@@ -6,38 +6,45 @@
 
 # Class definitions
 fruit:Fruit a rdfs:Class ;
-  rdfs:label "Fruit" .
+  rdfs:label "Fruit" 
+.
 
 # Individual fruit instances
 fruit:Apple a fruit:Fruit ;
   rdfs:label "Apple" ;
   schema:color "Red", "Green" ;
   fruit:hasTaste "Sweet", "Tart" ;
-  fruit:isCrunchy true .
+  fruit:isCrunchy true 
+.
 
 fruit:Banana a fruit:Fruit ;
   rdfs:label "Banana" ;
   schema:color "Yellow" ;
   fruit:hasTaste "Sweet" ;
-  fruit:isCrunchy false .
+  fruit:isCrunchy false 
+.
 
 fruit:Lemon a fruit:Fruit ;
   rdfs:label "Lemon" ;
   schema:color "Yellow" ;
   fruit:hasTaste "Sour" ;
-  fruit:isCrunchy false .
+  fruit:isCrunchy false 
+.
 
 fruit:Grape a fruit:Fruit ;
   rdfs:label "Grape" ;
   schema:color "Purple", "Green" ;
   fruit:hasTaste "Sweet" ;
-  fruit:isCrunchy false .
+  fruit:isCrunchy false 
+.
 
 # Properties
 fruit:hasTaste a rdf:Property ;
   rdfs:label "has taste" ;
-  rdfs:range xsd:string .
+  rdfs:range xsd:string 
+.
 
 fruit:isCrunchy a rdf:Property ;
   rdfs:label "is crunchy" ;
-  rdfs:range xsd:boolean .
+  rdfs:range xsd:boolean 
+.

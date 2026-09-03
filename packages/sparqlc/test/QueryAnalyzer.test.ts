@@ -20,7 +20,7 @@ describe('QueryAnalyzer', function () {
     )
 
     // then
-    expect(analyer.returnType).to.eq("Select<Record<'fruit' | 'label', Term>>")
+    expect(analyer.returnType).to.eq('Select<Record<\'fruit\' | \'label\', Term>>')
   })
 
   it('select with aggregations are correctly mapped to return type', function () {
@@ -39,7 +39,7 @@ describe('QueryAnalyzer', function () {
     )
 
     // then
-    expect(analyer.returnType).to.eq("Select<Record<'fruit' | 'labels', Term>>")
+    expect(analyer.returnType).to.eq('Select<Record<\'fruit\' | \'labels\', Term>>')
   })
 
   it('bound variables are included in return type', function () {

@@ -1,4 +1,3 @@
-/* eslint-disable mocha/no-global-tests */
 import { expect, test } from 'vitest'
 import { getByText } from '@testing-library/dom'
 import HelloWorld from './HelloWorld.js'

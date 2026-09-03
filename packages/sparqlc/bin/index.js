@@ -8,12 +8,12 @@ import { compile } from '../index.js'
 const filePath = process.argv[2]
 if (!filePath) {
   console.error('Usage: sparqlc <path-to-query-file>')
-  process.exit(2)
+  process.exit(2) // eslint-disable-line n/no-process-exit
 }
 
 // collect the rest of the CLI params as bindings
 const bindings = process.argv.slice(3)
-  .map(binding => {
+  .map((binding) => {
     const [name, value] = binding.split('=')
     return [name, stringToTerm(value)]
   })
