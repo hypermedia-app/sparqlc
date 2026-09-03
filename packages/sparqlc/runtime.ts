@@ -11,11 +11,13 @@ export function toTermMap(map: Map<Term, Term | Term[]>, params: Params): Map<Te
     for (const [key, value] of params.entries()) {
       map.set(rdf.literal(key), rdf.literal(value))
     }
-  } else if (Symbol.iterator in params) {
+  }
+  else if (Symbol.iterator in params) {
     for (const [key, value] of params.entries()) {
       map.set(key, value)
     }
-  } else {
+  }
+  else {
     for (const key of Object.keys(params)) {
       map.set(rdf.literal(key), params[key])
     }

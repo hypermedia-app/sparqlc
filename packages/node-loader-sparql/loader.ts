@@ -28,7 +28,8 @@ export const load: LoadHook = async (url, context, nextLoad) => {
     let source
     try {
       source = fs.readFileSync(fileURLToPath(resolved), 'utf8')
-    } catch {
+    }
+    catch {
       const result = await nextLoad(resolved.href, { ...context, format: 'module' })
       source = result.source
     }

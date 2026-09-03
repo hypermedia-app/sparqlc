@@ -8,7 +8,7 @@ import type { TermSetFactory } from '@rdfjs/term-set/Factory.js'
 
 export type Env = Environment<DataFactory | TermSetFactory>
 
-export default class <F extends Env = Env> extends Processor<Env> {
+export default class QueryAnalyzer<F extends Env = Env> extends Processor<Env> {
   public readonly parameters: Set<Term>
   protected readonly param: NamedNode<'https://sparqlc.described.at/param'>
   private queryType?: string
@@ -29,8 +29,9 @@ export default class <F extends Env = Env> extends Processor<Env> {
 
         if (this.isSelectAll) {
           varNames = [...this.allVars].sort()
-        } else {
-          varNames = [...this.selectVars].map(expr => {
+        }
+        else {
+          varNames = [...this.selectVars].map((expr) => {
             return 'termType' in expr ? expr.value : expr.variable.value
           })
         }
@@ -94,6 +95,7 @@ export default class <F extends Env = Env> extends Processor<Env> {
     return triple
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected processParamFunctionCall(term: Term): sparqljs.Expression | undefined {
     return undefined
   }

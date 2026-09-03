@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { defineConfig } from 'vitest/config'
 import { playwright } from '@vitest/browser-playwright'
 import SparqlPlugin from './index.js'

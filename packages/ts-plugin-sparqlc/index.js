@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('node:path')
 const { compile } = require('sparqlc')
 
@@ -49,7 +48,8 @@ ${bindingsType}
 declare const _default: ${queryType}
 export default _default
 `
-      } catch (e) {
+      }
+      catch (e) {
         log(`Compile error: ${e.message}`)
         return 'export {}'
       }
@@ -107,7 +107,8 @@ export default _default
       let source
       if (snapshot) {
         source = snapshot.getText(0, snapshot.getLength())
-      } else if (origReadFile) {
+      }
+      else if (origReadFile) {
         source = origReadFile(absRqPath)
       }
 
@@ -144,10 +145,12 @@ export default _default
             if (scriptInfo) {
               scriptInfo.setOptions({ scriptKind: ts.ScriptKind.TS })
               log(`Registered ScriptInfo for ${vPath}`)
-            } else {
+            }
+            else {
               log(`Failed to create ScriptInfo for ${vPath} (result: ${result})`)
             }
-          } catch (e) {
+          }
+          catch (e) {
             log(`Exception during ScriptInfo registration: ${e.message}`)
           }
           info.project.markAsDirty()

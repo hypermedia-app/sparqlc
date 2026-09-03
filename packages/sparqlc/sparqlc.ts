@@ -10,7 +10,7 @@ import QueryAnalyzer from './QueryAnalyzer.js'
 
 export type { Env } from './QueryAnalyzer.js'
 
-export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term>;
+export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term>
 
 export interface ExecuteOptions<C extends Client | undefined = Client> {
   env: Env

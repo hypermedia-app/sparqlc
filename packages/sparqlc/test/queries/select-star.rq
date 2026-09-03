@@ -2,5 +2,6 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 prefix fruit: <http://example.org/fruits/>
 
 SELECT * WHERE {
-  ?fruit a fruit:Fruit ; rdfs:label ?label
+    ?fruit a fruit:Fruit ; 
+        rdfs:label ?label
 }

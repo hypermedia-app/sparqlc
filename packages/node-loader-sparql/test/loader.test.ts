@@ -7,7 +7,7 @@ import type { DatasetCore } from '@rdfjs/types'
 import select from './queries/select.rq'
 import selectAll from './queries/select-all.rq'
 import construct from './queries/construct.rq'
-import selectRelative from './queries/base.rq' with { base: 'http://example.org/'}
+import selectRelative from './queries/base.rq' with { base: 'http://example.org/' }
 
 use(matchers)
 use(snapshots)
