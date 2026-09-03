@@ -1,5 +1,5 @@
 import Processor from '@hydrofoil/sparql-processor'
-import type { SelectQuery, SparqlQuery, Variable } from 'sparqljs'
+import type {BindPattern, Expression, Pattern, SelectQuery, SparqlQuery, Variable} from 'sparqljs'
 import { Wildcard } from 'sparqljs'
 import type sparqljs from 'sparqljs'
 import type { DataFactory, NamedNode, Term } from '@rdfjs/types'
@@ -99,9 +99,7 @@ export default class <F extends Env = Env> extends Processor<Env> {
   }
 
   processVariable(variable: Variable): Variable {
-    if ('expression' in variable) {
-      this.allVars.add(variable.variable.value)
-    } else {
+    if ('termType' in variable) {
       this.allVars.add(variable.value)
     }
 
