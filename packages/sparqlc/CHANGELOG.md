@@ -1,5 +1,12 @@
 # sparqlc
 
+## 0.1.6
+
+### Patch Changes
+
+- 7d14082: Fixes the handling of wildcards in aggregations
+- 7d14082: QueryAnalyzer returns a variable map with all query variables for `SELECT *` queries
+
 ## 0.1.5
 
 ### Patch Changes
