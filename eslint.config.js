@@ -34,5 +34,11 @@ export default [
       'no-undef': 'warn',
     },
   },
+  {
+    files: ['packages/sparqlc/*.js'],
+    rules: {
+      'n/no-missing-import': 'off',
+    },
+  },
   ...rdf.configs.recommended,
 ]
