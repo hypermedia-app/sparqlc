@@ -96,6 +96,20 @@ describe('sparqlc', function () {
           label: env.literal('Banana'),
         })
       })
+
+      it('does not remove aggregation from selected variables', async function () {
+        // given
+        const { default: query } = await import('./queries/aggregations/wildcard-no-param.rq')
+
+        // when
+        const result = await query({
+          env,
+          client: this.rdf.parsingClient,
+        })
+
+        // then
+        expect(result[0].fruits.value).to.eq('4')
+      })
     })
 
     describe('construct', function () {

@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { Parser } from 'sparqljs'
+import { Parser, Wildcard } from 'sparqljs'
 import type { DatasetCore, Stream, Term, NamedNode } from '@rdfjs/types'
 import type { Client } from 'sparql-http-client'
 import type { StreamClient } from 'sparql-http-client/StreamClient.js'
@@ -73,6 +73,15 @@ export function compile(query: string, { base }: Options = {}): Query {
       throw new Error('temp')
     },
     returnType,
-    code: moduleTemplate.replace('queryObject', JSON.stringify(queryObject)),
+    code: moduleTemplate.replace('queryObject', JSON.stringify(queryObject, (key, value) => {
+      if (value instanceof Wildcard) {
+        return <Wildcard>{
+          termType: 'Wildcard',
+          value: '*',
+        }
+      }
+
+      return value
+    })),
   }
 }

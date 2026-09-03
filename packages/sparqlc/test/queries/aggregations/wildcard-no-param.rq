@@ -1,0 +1,5 @@
+prefix fruit: <http://example.org/fruits/>
+
+SELECT (COUNT(*) AS ?fruits) WHERE {
+  ?fruit a fruit:Fruit
+}

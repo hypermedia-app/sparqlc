@@ -1,5 +1,6 @@
 import Processor from '@hydrofoil/sparql-processor'
-import type { SelectQuery, SparqlQuery, Variable, Wildcard } from 'sparqljs'
+import type { SelectQuery, SparqlQuery, Variable } from 'sparqljs'
+import { Wildcard } from 'sparqljs'
 import type sparqljs from 'sparqljs'
 import type { DataFactory, NamedNode, Term } from '@rdfjs/types'
 import type { Environment } from '@rdfjs/environment/Environment.js'
@@ -12,6 +13,8 @@ export default class <F extends Env = Env> extends Processor<Env> {
   protected readonly param: NamedNode<'https://sparqlc.described.at/param'>
   private queryType?: string
   private selectVars: Variable[] | [Wildcard] = []
+  private isSelectAll: boolean = false
+  private readonly allVars = new Set<string>()
 
   constructor(factory: F) {
     super(factory)
@@ -22,12 +25,14 @@ export default class <F extends Env = Env> extends Processor<Env> {
   get returnType() {
     switch (this.queryType) {
       case 'SELECT': {
-        const varNames = [...this.selectVars].map(expr => {
-          return 'termType' in expr ? expr.value : expr.variable.value
-        })
+        let varNames: string[]
 
-        if (varNames.includes('*') || varNames.length === 0) {
-          return 'Select<Record<string, Term>>'
+        if (this.isSelectAll) {
+          varNames = [...this.allVars].sort()
+        } else {
+          varNames = [...this.selectVars].map(expr => {
+            return 'termType' in expr ? expr.value : expr.variable.value
+          })
         }
 
         return `Select<Record<${varNames.map(v => `'${v}'`).join(' | ')}, Term>>`
@@ -55,6 +60,10 @@ export default class <F extends Env = Env> extends Processor<Env> {
   processSelectQuery(query: SelectQuery): SelectQuery {
     this.selectVars = query.variables
 
+    if (query.variables[0] instanceof Wildcard) {
+      this.isSelectAll = true
+    }
+
     return super.processSelectQuery(query)
   }
 
@@ -78,7 +87,7 @@ export default class <F extends Env = Env> extends Processor<Env> {
       return this.processParamTriple(triple)
     }
 
-    return triple
+    return super.processTriple(triple)
   }
 
   protected processParamTriple(triple: sparqljs.Triple): sparqljs.Triple | sparqljs.Pattern {
@@ -87,5 +96,15 @@ export default class <F extends Env = Env> extends Processor<Env> {
 
   protected processParamFunctionCall(term: Term): sparqljs.Expression | undefined {
     return undefined
+  }
+
+  processVariable(variable: Variable): Variable {
+    if ('expression' in variable) {
+      this.allVars.add(variable.variable.value)
+    } else {
+      this.allVars.add(variable.value)
+    }
+
+    return super.processVariable(variable)
   }
 }
