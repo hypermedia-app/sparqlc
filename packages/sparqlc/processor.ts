@@ -30,19 +30,7 @@ export default class Processor extends QueryAnalyzer {
   }
 
   processSelectQuery(query: sparqljs.SelectQuery): sparqljs.SelectQuery {
-    const processed = this._processQuery(super.processSelectQuery(query))
-
-    return {
-      ...processed,
-      variables: processed.variables.map(variable => {
-        if ('termType' in variable) return variable
-
-        return <sparqljs.Wildcard>{
-          termType: 'Wildcard',
-          value: '*',
-        }
-      }) as sparqljs.Variable[] | [sparqljs.Wildcard],
-    }
+    return this._processQuery(super.processSelectQuery(query))
   }
 
   processConstructQuery(query: sparqljs.ConstructQuery): sparqljs.ConstructQuery {

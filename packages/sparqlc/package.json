@@ -25,7 +25,7 @@
     "directory": "packages/sparqlc"
   },
   "dependencies": {
-    "@hydrofoil/sparql-processor": "^0.2.1",
+    "@hydrofoil/sparql-processor": "^0.2.2",
     "@rdfjs/data-model": "^2.1.1",
     "@rdfjs/term-map": "^2.0.2",
     "@zazuko/env": "^3.0.1",
