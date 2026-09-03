@@ -1,5 +1,5 @@
 import Processor from '@hydrofoil/sparql-processor'
-import type {BindPattern, Expression, Pattern, SelectQuery, SparqlQuery, Variable} from 'sparqljs'
+import type { SelectQuery, SparqlQuery, Variable } from 'sparqljs'
 import { Wildcard } from 'sparqljs'
 import type sparqljs from 'sparqljs'
 import type { DataFactory, NamedNode, Term } from '@rdfjs/types'
