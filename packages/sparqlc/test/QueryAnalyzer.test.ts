@@ -22,4 +22,23 @@ describe('QueryAnalyzer', function () {
     // then
     expect(analyer.returnType).to.eq("Select<Record<'fruit' | 'label', Term>>")
   })
+
+  it('select with aggregations are correctly mapped to return type', function () {
+    // given
+    const analyer = new QueryAnalyzer($rdf)
+    const parser = new Parser()
+
+    // when
+    analyer.process(parser.parse(`
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      prefix fruit: <http://example.org/fruits/>
+      
+      SELECT ?fruit (COUNT(?label) AS ?labels) WHERE {
+        ?fruit a fruit:Fruit ; rdfs:label ?label
+      } GROUP by ?fruit`),
+    )
+
+    // then
+    expect(analyer.returnType).to.eq("Select<Record<'fruit' | 'labels', Term>>")
+  })
 })
