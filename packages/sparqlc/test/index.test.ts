@@ -3,13 +3,15 @@ import type { ParsingClient, StreamClient } from 'sparql-http-client'
 import sinon from 'sinon'
 import env from '@zazuko/env'
 import { createStore, createEmpty } from 'mocha-chai-rdf/store.js'
-import { expect, use } from 'chai'
+import * as chai from 'chai'
+import { expect } from 'chai'
+import matchers from 'mocha-chai-rdf/matchers.js'
 import snapshots from 'mocha-chai-rdf/snapshots.js'
 import type { ExecuteAsk, ExecuteConstruct, ExecuteSelect, ExecuteUpdate } from '../index.js'
 
 const fruits = env.namespace('http://example.org/fruits/')
 
-use(snapshots)
+await snapshots(chai.use(matchers), chai.util)
 
 describe('sparqlc', function () {
   describe('types', function () {

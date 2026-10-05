@@ -30,7 +30,7 @@
     "@zazuko/env": "^3.0.0",
     "chai": "^6.2.2",
     "chai-as-promised": "^8.0.2",
-    "mocha-chai-rdf": "^0.1.11"
+    "mocha-chai-rdf": "^0.2.0"
   },
   "mocha": {
     "spec": "test/**/*.test.ts",
