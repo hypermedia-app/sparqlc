@@ -1,6 +1,7 @@
 import $rdf from '@zazuko/env'
 import { Parser, Generator } from 'sparqljs'
 import { expect } from 'chai'
+import type { Term } from '@rdfjs/types'
 import snapshots from 'mocha-chai-rdf/snapshots.js'
 import * as chai from 'chai'
 import matchers from 'mocha-chai-rdf/matchers.js'
@@ -286,5 +287,84 @@ describe('Processor', function () {
 
     // then
     expect(result).toMatchSnapshot()
+  })
+
+  it('supports NamedNode parameter keys with prefix, hash, or path', function () {
+    // given
+    const query = parser.parse(`
+      PREFIX sparqlc: <https://sparqlc.described.at/>
+      PREFIX schema: <http://schema.org/>
+      SELECT * WHERE {
+        BIND(sparqlc:param(schema:name) AS ?p1)
+        BIND(sparqlc:param(<http://custom.example/ns#hashParam>) AS ?p2)
+        BIND(sparqlc:param(<http://custom.example/pathParam>) AS ?p3)
+        ?name schema:name ?p1 .
+        ?custom1 <http://custom.example/ns#hashParam> ?p2 .
+        ?custom2 <http://custom.example/pathParam> ?p3 .
+      }
+    `)
+    const params = $rdf.termMap<Term, Term>([
+      [$rdf.namedNode('http://schema.org/name'), $rdf.literal('nameVal')],
+      [$rdf.namedNode('http://custom.example/ns#hashParam'), $rdf.literal('hashVal')],
+      [$rdf.namedNode('http://custom.example/pathParam'), $rdf.literal('pathVal')],
+    ])
+    const processor = new Processor($rdf, params)
+
+    // when
+    const processed = processor.process(query)
+    const result = generator.stringify(processed)
+
+    // then
+    expect(result).toMatchSnapshot()
+  })
+
+  it('preserves single-pattern union branch without parameters', function () {
+    // given
+    const query = parser.parse(`
+      PREFIX sparqlc: <https://sparqlc.described.at/>
+      SELECT * WHERE {
+        { ?s ?p ?o }
+        UNION
+        { ?a ?b ?c }
+      }
+    `)
+    const params = $rdf.termMap([])
+    const processor = new Processor($rdf, params)
+
+    // when
+    const processed = processor.process(query)
+    const result = generator.stringify(processed)
+
+    // then
+    expect(result).toMatchSnapshot()
+  })
+
+  it('throws error when parameter is unsupported term type', function () {
+    // given
+    const blank = $rdf.blankNode('b1')
+    const params = $rdf.termMap([
+      [$rdf.literal('foo'), $rdf.literal('fooVal')],
+    ])
+    const processor = new Processor($rdf, params)
+
+    // when / then
+    expect(() => (processor as unknown as { paramVariable(t: Term): unknown }).paramVariable(blank)).to.throw('Only NamedNodes and Literals are supported as parameters')
+  })
+
+  it('clone creates new Processor with preserved configuration', function () {
+    // given
+    const params = $rdf.termMap([
+      [$rdf.literal('foo'), $rdf.literal('fooVal')],
+    ])
+    const processor = new Processor($rdf, params)
+    processor.parameters.add($rdf.literal('foo'))
+    processor.variables.add('foo')
+
+    // when
+    const clone = processor.clone()
+
+    // then
+    expect([...clone.parameters].map(p => p.value)).to.deep.eq(['foo'])
+    expect([...clone.variables]).to.deep.eq(['foo'])
   })
 })
