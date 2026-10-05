@@ -158,19 +158,25 @@ describe('QueryAnalyzer', function () {
     expect(() => analyzer.process(query)).to.throw('Expected literal value for parameter name')
   })
 
-  it('extracts parameters from parameter triple predicates', function () {
+  it('clone creates new QueryAnalyzer with copied parameters and variables', function () {
     // given
     const analyzer = new QueryAnalyzer($rdf)
-    const parser = new Parser()
+    analyzer.parameters.add($rdf.literal('p1'))
+    analyzer.variables.add('v1')
 
     // when
-    analyzer.process(parser.parse(`
-      SELECT * WHERE {
-        <http://example.org/item> <https://sparqlc.described.at/param> ?value .
-      }
-    `))
+    const clone = analyzer.clone()
 
     // then
-    expect([...analyzer.parameters].map(p => p.value)).to.deep.eq(['http://example.org/item'])
+    expect([...clone.parameters].map(p => p.value)).to.deep.eq(['p1'])
+    expect([...clone.variables]).to.deep.eq(['v1'])
+  })
+
+  it('returns unknown for unhandled query type', function () {
+    // given
+    const analyzer = new QueryAnalyzer($rdf)
+
+    // when / then
+    expect(analyzer.returnType).to.eq('unknown')
   })
 })

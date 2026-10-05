@@ -90,25 +90,6 @@ export default class QueryAnalyzer<F extends Env = Env> extends ProcessorImpl<En
     return super.processFunctionCall(functionCall)
   }
 
-  override processTriple(triple: sparqljs.Triple) {
-    if ('termType' in triple.predicate && this.param.equals(triple.predicate)) {
-      if (triple.subject.termType === 'Variable') {
-        this.parameters.add(triple.object)
-      }
-      else {
-        this.parameters.add(triple.subject)
-      }
-
-      return this.processParamTriple(triple)
-    }
-
-    return super.processTriple(triple)
-  }
-
-  protected processParamTriple(triple: sparqljs.Triple): sparqljs.Triple | sparqljs.Pattern {
-    return triple
-  }
-
   protected processParamFunctionCall(_term: Term): sparqljs.Expression | undefined {
     return undefined
   }

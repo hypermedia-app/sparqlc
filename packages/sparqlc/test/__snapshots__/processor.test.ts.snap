@@ -155,3 +155,26 @@ exports[`Processor injects values into inner GRAPH pattern when param is defined
   }
 }"
 `;
+
+exports[`Processor preserves single-pattern union branch without parameters 1`] = `
+"SELECT * WHERE {
+  { ?s ?p ?o. }
+  UNION
+  { ?a ?b ?c. }
+}"
+`;
+
+exports[`Processor supports NamedNode parameter keys with prefix, hash, or path 1`] = `
+"PREFIX schema: <http://schema.org/>
+SELECT * WHERE {
+  VALUES (?_param_schema_name ?_param_hashParam ?_param_pathParam) {
+    (\\"nameVal\\" \\"hashVal\\" \\"pathVal\\")
+  }
+  BIND(?_param_schema_name AS ?p1)
+  BIND(?_param_hashParam AS ?p2)
+  BIND(?_param_pathParam AS ?p3)
+  ?name schema:name ?p1.
+  ?custom1 <http://custom.example/ns#hashParam> ?p2.
+  ?custom2 <http://custom.example/pathParam> ?p3.
+}"
+`;

@@ -157,23 +157,6 @@ export default class Processor extends QueryAnalyzer {
           currentScope.availableParamBindings.set(varName, binding)
         }
       }
-      else if (pattern.type === 'bgp') {
-        for (const triple of pattern.triples) {
-          if ('termType' in triple.predicate && this.param.equals(triple.predicate)) {
-            const paramTerm = triple.subject.termType === 'Variable' ? triple.object : triple.subject
-            const varName = triple.subject.termType === 'Variable' ? triple.subject.value : triple.object.value
-            const paramTerms = this.factory.termSet([paramTerm])
-            const processedBind = this.processParamTriple(triple) as sparqljs.BindPattern
-            const binding: ParamBinding = {
-              variableName: varName,
-              bindPattern: processedBind,
-              paramTerms,
-            }
-            currentScope.definedParamBindings.set(varName, binding)
-            currentScope.availableParamBindings.set(varName, binding)
-          }
-        }
-      }
     }
 
     // Process all patterns in this scope
@@ -183,27 +166,12 @@ export default class Processor extends QueryAnalyzer {
       if (pattern.type === 'bind' && currentScope.definedParamBindings.has(pattern.variable.value)) {
         continue
       }
-      if (pattern.type === 'bgp') {
-        const nonParamTriples = pattern.triples.filter(t => !('termType' in t.predicate && this.param.equals(t.predicate)))
-        if (nonParamTriples.length === 0) {
-          continue
-        }
-        const bgp: sparqljs.BgpPattern = { type: 'bgp', triples: nonParamTriples }
-        const processed = this.processBgp(bgp)
-        const processedList = Array.isArray(processed) ? processed : [processed]
-        for (const p of processedList) {
-          collectVariablesFromPattern(p, currentScope.directUsedVars, false)
-          collectVariablesFromPattern(p, currentScope.allUsedVars, false)
-          processedPatterns.push(p)
-        }
-        continue
-      }
 
       const processed = this.processPattern(pattern)
       if (!processed) continue
       const processedList = Array.isArray(processed) ? processed : [processed]
       for (const p of processedList) {
-        if (p.type === 'filter' || p.type === 'bind' || p.type === 'values') {
+        if (p.type === 'bgp' || p.type === 'filter' || p.type === 'bind' || p.type === 'values') {
           collectVariablesFromPattern(p, currentScope.directUsedVars, false)
         }
         collectVariablesFromPattern(p, currentScope.allUsedVars, true)
@@ -316,22 +284,6 @@ export default class Processor extends QueryAnalyzer {
       this.scopeStack[this.scopeStack.length - 1].directParams.add(varTerm)
     }
     return this.paramVariable(varTerm)
-  }
-
-  override processParamTriple(triple: sparqljs.Triple) {
-    const paramTerm = triple.subject.termType === 'Variable' ? triple.object : triple.subject
-    const varName = triple.subject.termType === 'Variable' ? triple.subject.value : triple.object.value
-    const expression = this.params.get(paramTerm)
-
-    if (!expression) {
-      throw new Error(`No value provided for parameter ${paramTerm.value}`)
-    }
-
-    return <sparqljs.BindPattern>{
-      type: 'bind',
-      variable: this.factory.variable!(varName),
-      expression: this.paramVariable(paramTerm),
-    }
   }
 
   override clone(): Processor {
