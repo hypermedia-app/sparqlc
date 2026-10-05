@@ -39,5 +39,8 @@
       "tsx",
       "./mocha-setup.js"
     ]
+  },
+  "engines": {
+    "node": ">=24"
   }
 }

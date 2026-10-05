@@ -1,18 +1,28 @@
+import path from 'node:path'
+import { includeIgnoreFile } from 'eslint/config'
 import config from '@tpluscode/eslint-config'
-import rdf from 'eslint-plugin-rdf'
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
+import { createNodeResolver } from 'eslint-plugin-import-x'
+
+const gitignorePath = path.resolve(import.meta.dirname, '.gitignore')
 
 export default [
+  includeIgnoreFile(gitignorePath),
   ...config,
   {
     settings: {
-      'import/resolver': {
-        typescript: true,
-        node: true,
-      },
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          alwaysTryTypes: true,
+        }),
+        createNodeResolver(),
+      ],
     },
   },
   {
-    ignores: ['**/*.d.ts'],
+    ignores: [
+      'packages/esbuild-plugin-sparql/test/out/',
+    ],
   },
   {
     languageOptions: {
@@ -28,10 +38,22 @@ export default [
     },
   },
   {
+    files: ['**/*.{ts,mts,cts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+  {
     files: ['packages/sparqlc/moduleTemplate.js'],
     rules: {
-      'import/no-extraneous-dependencies': 'warn',
-      'no-undef': 'warn',
+      'import-x/no-extraneous-dependencies': 'warn',
+      'no-undef': 'off',
     },
   },
   {
@@ -40,5 +62,20 @@ export default [
       'n/no-missing-import': 'off',
     },
   },
-  ...rdf.configs.recommended,
+  {
+    files: ['packages/node-loader-sparql/index.ts'],
+    rules: {
+      'n/no-unsupported-features/node-builtins': 'off',
+    },
+  },
+  {
+    files: [
+      'packages/*/test/**',
+      'packages/*/mocha-setup.js',
+      'packages/vite-plugin-sparql/vitest.config.ts',
+    ],
+    rules: {
+      'import-x/no-extraneous-dependencies': 'off',
+    },
+  },
 ]

@@ -20,15 +20,13 @@ describe('sparqlc', function () {
       it('stream client returns stream', async function () {
         const query: ExecuteConstruct = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result = await query({ env, client: streamClient })
+        const _result = await query({ env, client: streamClient })
       })
 
       it('parsing client returns dataset', async function () {
         const query: ExecuteConstruct = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result: DatasetCore = await query({ env, client: parsingClient })
+        const _result: DatasetCore = await query({ env, client: parsingClient })
       })
     })
 
@@ -36,15 +34,13 @@ describe('sparqlc', function () {
       it('stream client returns generator', async function () {
         const query: ExecuteSelect<Record<'foo', Term>> = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result: AsyncGenerator<Record<'foo', Term>> = await query({ env, client: streamClient })
+        const _result: AsyncGenerator<Record<'foo', Term>> = await query({ env, client: streamClient })
       })
 
       it('parsing client returns bindings', async function () {
         const query: ExecuteSelect<Record<'foo', Term>> = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result: Record<'foo', Term>[] = await query({ env, client: parsingClient })
+        const _result: Record<'foo', Term>[] = await query({ env, client: parsingClient })
       })
 
       it('typechecks order variables', async function () {
@@ -65,15 +61,13 @@ describe('sparqlc', function () {
       it('stream client returns boolean', async function () {
         const query: ExecuteAsk = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result: boolean = await query({ env, client: streamClient })
+        const _result: boolean = await query({ env, client: streamClient })
       })
 
       it('parsing client returns boolean', async function () {
         const query: ExecuteAsk = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result: boolean = await query({ env, client: parsingClient })
+        const _result: boolean = await query({ env, client: parsingClient })
       })
     })
 
@@ -81,15 +75,13 @@ describe('sparqlc', function () {
       it('stream client returns boolean', async function () {
         const query: ExecuteUpdate = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result: void = await query({ env, client: streamClient })
+        const _result: void = await query({ env, client: streamClient })
       })
 
       it('parsing client returns void', async function () {
         const query: ExecuteUpdate = sinon.stub()
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const result: void = await query({ env, client: parsingClient })
+        const _result: void = await query({ env, client: parsingClient })
       })
     })
   })
