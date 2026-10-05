@@ -5,7 +5,7 @@ import type { Expression, Ordering } from 'sparqljs'
 import type { Client } from 'sparql-http-client'
 import type { StreamClient } from 'sparql-http-client/StreamClient.js'
 import rdf from '@zazuko/env'
-import type Processor from '@hydrofoil/sparql-processor'
+import type { Processor } from '@hydrofoil/sparql-processor'
 import type { Env } from './QueryAnalyzer.js'
 import QueryAnalyzer from './QueryAnalyzer.js'
 
@@ -20,21 +20,21 @@ export interface FromOptions {
 
 export type OrderDirection = 'ASC' | 'DESC' | 'asc' | 'desc'
 
-export type OrderTuple<TVar extends string = string> =
-  | [TVar | Variable, OrderDirection]
-  | readonly [TVar | Variable, OrderDirection]
+export type OrderTuple<TVar extends string = string>
+  = | [TVar | Variable, OrderDirection]
+    | readonly [TVar | Variable, OrderDirection]
 
-export type OrderItem<TVar extends string = string> =
-  | TVar
-  | Variable
-  | OrderTuple<TVar>
-  | Ordering
-  | { expression: TVar | Variable | Expression; descending?: boolean }
+export type OrderItem<TVar extends string = string>
+  = | TVar
+    | Variable
+    | OrderTuple<TVar>
+    | Ordering
+    | { expression: TVar | Variable | Expression, descending?: boolean }
 
-export type OrderBy<TVar extends string = string> =
-  | OrderItem<TVar>
-  | OrderItem<TVar>[]
-  | readonly OrderItem<TVar>[]
+export type OrderBy<TVar extends string = string>
+  = | OrderItem<TVar>
+    | OrderItem<TVar>[]
+    | readonly OrderItem<TVar>[]
 
 export interface QueryModifiers<TVar extends string = string> {
   base?: string | NamedNode | null

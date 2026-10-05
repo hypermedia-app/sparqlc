@@ -99,7 +99,7 @@ function normalizeOrderItem(env: Env, item: OrderItem | sparqljs.Ordering | null
       return { expression: item as sparqljs.VariableTerm }
     }
     if ('expression' in item) {
-      const exprObj = item as { expression: VariableSource | sparqljs.Expression; descending?: boolean }
+      const exprObj = item as { expression: VariableSource | sparqljs.Expression, descending?: boolean }
       let expression: sparqljs.Expression
       if (typeof exprObj.expression === 'string') {
         expression = toVariableTerm(env, exprObj.expression)

@@ -1,4 +1,4 @@
-import Processor from '@hydrofoil/sparql-processor'
+import ProcessorImpl from '@hydrofoil/sparql-processor'
 import type { SelectQuery, SparqlQuery, Variable } from 'sparqljs'
 import { Wildcard } from 'sparqljs'
 import type sparqljs from 'sparqljs'
@@ -8,7 +8,7 @@ import type { TermSetFactory } from '@rdfjs/term-set/Factory.js'
 
 export type Env = Environment<DataFactory | TermSetFactory>
 
-export default class QueryAnalyzer<F extends Env = Env> extends Processor<Env> {
+export default class QueryAnalyzer<F extends Env = Env> extends ProcessorImpl<Env> {
   public readonly parameters: Set<Term>
   protected readonly param: NamedNode<'https://sparqlc.described.at/param'>
   private queryType?: string
@@ -99,8 +99,7 @@ export default class QueryAnalyzer<F extends Env = Env> extends Processor<Env> {
     return triple
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected processParamFunctionCall(term: Term): sparqljs.Expression | undefined {
+  protected processParamFunctionCall(_term: Term): sparqljs.Expression | undefined {
     return undefined
   }
 
