@@ -23,7 +23,7 @@
     "eslint-import-resolver-typescript": "^4.4.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "mocha": "^10",
+    "mocha": "^12",
     "ts-patch": "^3.3.0",
     "tsx": "^4.20.4",
     "typescript": "^5.9.3"
