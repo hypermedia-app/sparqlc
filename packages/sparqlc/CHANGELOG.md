@@ -1,5 +1,11 @@
 # sparqlc
 
+## 0.1.7
+
+### Patch Changes
+
+- 96222d5: Added support for query modifiers (`DISTINCT`, `ORDER BY`, `LIMIT/OFFSET`, `FROM (NAMED)`) to be supplied when executing a query
+
 ## 0.1.6
 
 ### Patch Changes

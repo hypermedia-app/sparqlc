@@ -1,5 +1,13 @@
 # ts-plugin-sparqlc
 
+## 0.1.3
+
+### Patch Changes
+
+- 7739d41: Mention `sparqlc` types loading when using the plugin
+- Updated dependencies [96222d5]
+  - sparqlc@0.1.7
+
 ## 0.1.2
 
 ### Patch Changes
