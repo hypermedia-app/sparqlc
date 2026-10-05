@@ -19,6 +19,73 @@ exports[`sparqlc query describe binds parameter with named node key 1`] = `
 "
 `;
 
+exports[`sparqlc query select binds parameter inside GRAPH pattern 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?fruit ?label WHERE {
+  GRAPH ?g {
+    VALUES ?_param_schema_mainEntity {
+      <http://example.org/fruits/Banana>
+    }
+    BIND(IRI(?_param_schema_mainEntity) AS ?fruit)
+    ?fruit rdfs:label ?label.
+  }
+}"
+`;
+
+exports[`sparqlc query select binds parameter inside GRAPH pattern when param BIND is outside 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?fruit ?label WHERE {
+  GRAPH ?g {
+    VALUES ?_param_schema_mainEntity {
+      <http://example.org/fruits/Banana>
+    }
+    BIND(IRI(?_param_schema_mainEntity) AS ?fruit)
+    ?fruit rdfs:label ?label.
+  }
+}"
+`;
+
+exports[`sparqlc query select binds shared parameter inside multiple GRAPH patterns 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?fruit ?label ?comment WHERE {
+  GRAPH ?g1 {
+    VALUES ?_param_schema_mainEntity {
+      <http://example.org/fruits/Banana>
+    }
+    BIND(IRI(?_param_schema_mainEntity) AS ?fruit)
+    ?fruit rdfs:label ?label.
+  }
+  GRAPH ?g2 {
+    VALUES ?_param_schema_mainEntity {
+      <http://example.org/fruits/Banana>
+    }
+    BIND(IRI(?_param_schema_mainEntity) AS ?fruit)
+    ?fruit rdfs:comment ?comment.
+  }
+}"
+`;
+
+exports[`sparqlc query select injects only these variables in VALUES clause which are actually used in that group 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?fruit ?label WHERE {
+  {
+    VALUES (?_param_schema_mainEntity ?_param_type) {
+      (<http://example.org/fruits/Banana> <http://example.org/fruits/StoneFruit>)
+    }
+    BIND(IRI(?_param_schema_mainEntity) AS ?fruit)
+    BIND(IRI(?_param_type) AS ?fruitType)
+    ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?fruitType.
+  }
+  {
+    VALUES ?_param_schema_mainEntity {
+      <http://example.org/fruits/Banana>
+    }
+    BIND(IRI(?_param_schema_mainEntity) AS ?fruit)
+    ?fruit rdfs:label ?label.
+  }
+}"
+`;
+
 exports[`sparqlc query select runtime options applies distinct 1`] = `
 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX fruit: <http://example.org/fruits/>

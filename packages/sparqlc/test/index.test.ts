@@ -126,6 +126,62 @@ describe('sparqlc', function () {
         expect(result[0].fruits.value).to.eq('4')
       })
 
+      it('binds parameter inside GRAPH pattern', async function () {
+        // given
+        const { default: query } = await import('./queries/select-graph-param.rq')
+        const params = env.termMap([
+          [env.ns.schema.mainEntity, fruits.Banana],
+        ])
+
+        // when
+        const queryString = await query(params, { env })
+
+        // then
+        expect(queryString).toMatchSnapshot()
+      })
+
+      it('binds parameter inside GRAPH pattern when param BIND is outside', async function () {
+        // given
+        const { default: query } = await import('./queries/select-graph-param-outside.rq')
+        const params = env.termMap([
+          [env.ns.schema.mainEntity, fruits.Banana],
+        ])
+
+        // when
+        const queryString = await query(params, { env })
+
+        // then
+        expect(queryString).toMatchSnapshot()
+      })
+
+      it('injects only these variables in VALUES clause which are actually used in that group', async function () {
+        // given
+        const { default: query } = await import('./queries/select-group-subset-variables.rq')
+        const params = env.termMap([
+          [env.ns.schema.mainEntity, fruits.Banana],
+        ])
+
+        // when
+        const queryString = await query(params, { type: fruits.StoneFruit }, { env })
+
+        // then
+        expect(queryString).toMatchSnapshot()
+      })
+
+      it('binds shared parameter inside multiple GRAPH patterns', async function () {
+        // given
+        const { default: query } = await import('./queries/select-multiple-graph-param.rq')
+        const params = env.termMap([
+          [env.ns.schema.mainEntity, fruits.Banana],
+        ])
+
+        // when
+        const queryString = await query(params, { env })
+
+        // then
+        expect(queryString).toMatchSnapshot()
+      })
+
       describe('runtime options', function () {
         it('applies distinct', async function () {
           // given

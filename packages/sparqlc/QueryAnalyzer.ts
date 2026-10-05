@@ -16,10 +16,15 @@ export default class QueryAnalyzer<F extends Env = Env> extends ProcessorImpl<En
   private isSelectAll: boolean = false
   public readonly variables = new Set<string>()
 
-  constructor(factory: F) {
+  constructor(factory: F, parameters?: Set<Term>, variables?: Set<string>) {
     super(factory)
     this.param = this.factory.namedNode('https://sparqlc.described.at/param')
-    this.parameters = this.factory.termSet()
+    this.parameters = parameters || this.factory.termSet()
+    this.variables = variables || new Set<string>()
+  }
+
+  override clone(): QueryAnalyzer<F> {
+    return new QueryAnalyzer(this.factory, this.parameters, this.variables)
   }
 
   get returnType() {
@@ -87,7 +92,12 @@ export default class QueryAnalyzer<F extends Env = Env> extends ProcessorImpl<En
 
   override processTriple(triple: sparqljs.Triple) {
     if ('termType' in triple.predicate && this.param.equals(triple.predicate)) {
-      this.parameters.add(triple.subject)
+      if (triple.subject.termType === 'Variable') {
+        this.parameters.add(triple.object)
+      }
+      else {
+        this.parameters.add(triple.subject)
+      }
 
       return this.processParamTriple(triple)
     }
