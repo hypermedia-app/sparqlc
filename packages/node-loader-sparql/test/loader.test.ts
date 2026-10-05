@@ -1,6 +1,7 @@
 import { createEmpty } from 'mocha-chai-rdf/store.js'
 import matchers from 'mocha-chai-rdf/matchers.js'
 import snapshots from 'mocha-chai-rdf/snapshots.js'
+import promises from 'chai-as-promised'
 import { expect, use } from 'chai'
 import env from '@zazuko/env'
 import type { DatasetCore } from '@rdfjs/types'
@@ -11,6 +12,7 @@ import selectRelative from './queries/base.rq' with { base: 'http://example.org/
 
 use(matchers)
 use(snapshots)
+use(promises)
 
 describe('node-loader-sparql', function () {
   beforeEach(createEmpty)
@@ -108,7 +110,7 @@ describe('node-loader-sparql', function () {
     })
 
     it('fails when there is no base', async function () {
-      await expect(import('./queries/base.rq')).to.have.been.rejected
+      await expect(import('./queries/base.rq')).to.be.rejected
     })
   })
 
