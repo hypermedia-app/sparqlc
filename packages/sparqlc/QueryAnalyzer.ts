@@ -14,7 +14,7 @@ export default class QueryAnalyzer<F extends Env = Env> extends Processor<Env> {
   private queryType?: string
   private selectVars: Variable[] | [Wildcard] = []
   private isSelectAll: boolean = false
-  private readonly allVars = new Set<string>()
+  public readonly variables = new Set<string>()
 
   constructor(factory: F) {
     super(factory)
@@ -28,7 +28,7 @@ export default class QueryAnalyzer<F extends Env = Env> extends Processor<Env> {
         let varNames: string[]
 
         if (this.isSelectAll) {
-          varNames = [...this.allVars].sort()
+          varNames = [...this.variables].sort()
         }
         else {
           varNames = [...this.selectVars].map((expr) => {
@@ -36,7 +36,11 @@ export default class QueryAnalyzer<F extends Env = Env> extends Processor<Env> {
           })
         }
 
-        return `Select<Record<${varNames.map(v => `'${v}'`).join(' | ')}, Term>>`
+        const allVars = [...this.variables].sort()
+        const allVarsType = allVars.length > 0 ? allVars.map(v => `'${v}'`).join(' | ') : 'never'
+        const selectVarsType = varNames.length > 0 ? varNames.map(v => `'${v}'`).join(' | ') : 'never'
+
+        return `Select<Record<${selectVarsType}, Term>, ${allVarsType}>`
       }
       case 'CONSTRUCT':
       case 'DESCRIBE':
@@ -102,7 +106,7 @@ export default class QueryAnalyzer<F extends Env = Env> extends Processor<Env> {
 
   processVariable(variable: Variable): Variable {
     if ('termType' in variable) {
-      this.allVars.add(variable.value)
+      this.variables.add(variable.value)
     }
 
     return super.processVariable(variable)

@@ -75,6 +75,35 @@ const { default: construct } = await import('./queries/construct-named-node-para
 const dataset = await construct(params, { env, client })
 ```
 
+#### Runtime query options
+
+Queries can be modified at execution time using runtime options:
+
+- `distinct`: `boolean` — dynamically add or remove the `DISTINCT` modifier
+- `from` / `fromNamed`: `NamedNode | string | (NamedNode | string)[]` — specify default (`FROM`) or named (`FROM NAMED`) graph IRIs
+- `limit`: `number` — specify or override `LIMIT`
+- `offset`: `number` — specify or override `OFFSET`
+- `orderBy`: variable, direction tuple `[variable, 'ASC' | 'DESC']`, or array thereof — sort results with compile-time type checking restricted to variables present in the query
+
+```ts
+const rows = await selectFruit({
+  env,
+  client,
+  distinct: true,
+  limit: 10,
+  offset: 20,
+  orderBy: [
+    ['label', 'DESC'],
+    'fruit',
+  ],
+  from: 'http://example.org/fruits',
+  fromNamed: [
+    'http://example.org/graphs/fruits-1',
+    env.namedNode('http://example.org/graphs/fruits-2'),
+  ],
+})
+```
+
 #### Base IRI via import attributes
 
 You can pass a base IRI for resolving relative IRIs in the query using ESM import attributes:

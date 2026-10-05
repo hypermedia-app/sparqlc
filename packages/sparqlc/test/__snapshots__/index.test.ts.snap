@@ -19,6 +19,210 @@ exports[`sparqlc query describe binds parameter with named node key 1`] = `
 "
 `;
 
+exports[`sparqlc query select runtime options applies distinct 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT DISTINCT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
+exports[`sparqlc query select runtime options applies from default and named graphs via FromOptions 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * FROM <http://example.org/default-graph>
+FROM NAMED <http://example.org/named-graph-1>
+FROM NAMED <http://example.org/named-graph-2>
+WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
+exports[`sparqlc query select runtime options applies from default graph 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * FROM <http://example.org/graph>
+WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
+exports[`sparqlc query select runtime options applies fromNamed option 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * FROM NAMED <http://example.org/named-1>
+WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
+exports[`sparqlc query select runtime options applies limit and offset 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}
+OFFSET 5
+LIMIT 10"
+`;
+
+exports[`sparqlc query select runtime options applies modifiers to ask query 1`] = `
+"PREFIX fruits: <http://example.org/fruits/>
+ASK FROM NAMED <http://example.org/named-graph>
+WHERE { ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruits:Fruit. }"
+`;
+
+exports[`sparqlc query select runtime options applies modifiers to construct query 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+CONSTRUCT { ?fruit rdfs:label ?label. }
+FROM <http://example.org/graph>
+WHERE {
+  VALUES ?_param_schema_mainEntity {
+    <http://example.org/fruits/Banana>
+  }
+  BIND(IRI(?_param_schema_mainEntity) AS ?fruit)
+  ?fruit rdfs:label ?label.
+}
+OFFSET 10
+LIMIT 5"
+`;
+
+exports[`sparqlc query select runtime options applies order by array with tuples and strings 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}
+ORDER BY DESC (?label) (?fruit)"
+`;
+
+exports[`sparqlc query select runtime options applies order by descending expression object 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}
+ORDER BY DESC (?label)"
+`;
+
+exports[`sparqlc query select runtime options applies order by variable 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}
+ORDER BY (?label)"
+`;
+
+exports[`sparqlc query select runtime options applies string variable to orderBy 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}
+ORDER BY (?fruit)"
+`;
+
+exports[`sparqlc query select runtime options executes query with order by at runtime 1`] = `
+Array [
+  Object {
+    "fruit": "http://example.org/fruits/Apple",
+    "label": "Apple",
+  },
+  Object {
+    "fruit": "http://example.org/fruits/Banana",
+    "label": "Banana",
+  },
+  Object {
+    "fruit": "http://example.org/fruits/Grape",
+    "label": "Grape",
+  },
+  Object {
+    "fruit": "http://example.org/fruits/Lemon",
+    "label": "Lemon",
+  },
+]
+`;
+
+exports[`sparqlc query select runtime options executes query with order by at runtime 2`] = `
+Array [
+  Object {
+    "fruit": "http://example.org/fruits/Lemon",
+    "label": "Lemon",
+  },
+  Object {
+    "fruit": "http://example.org/fruits/Grape",
+    "label": "Grape",
+  },
+  Object {
+    "fruit": "http://example.org/fruits/Banana",
+    "label": "Banana",
+  },
+  Object {
+    "fruit": "http://example.org/fruits/Apple",
+    "label": "Apple",
+  },
+]
+`;
+
+exports[`sparqlc query select runtime options limits executed query results 1`] = `
+Array [
+  Object {
+    "fruit": "http://example.org/fruits/Grape",
+    "label": "Grape",
+  },
+  Object {
+    "fruit": "http://example.org/fruits/Lemon",
+    "label": "Lemon",
+  },
+]
+`;
+
+exports[`sparqlc query select runtime options removes dataset clauses when from is null 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
+exports[`sparqlc query select runtime options removes distinct when false 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
+exports[`sparqlc query select runtime options removes limit and offset when null or negative 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
+exports[`sparqlc query select runtime options removes order by when null or empty 1`] = `
+"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX fruit: <http://example.org/fruits/>
+SELECT * WHERE {
+  ?fruit <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> fruit:Fruit;
+    rdfs:label ?label.
+}"
+`;
+
 exports[`sparqlc update insert data writes triples to the store 1`] = `
 "<http://example.org/foo> <http://example.org/bar> <http://example.org/baz> .
 "

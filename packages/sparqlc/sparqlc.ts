@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import { Parser, Wildcard } from 'sparqljs'
-import type { DatasetCore, Stream, Term, NamedNode } from '@rdfjs/types'
+import type { DatasetCore, Stream, Term, NamedNode, Variable } from '@rdfjs/types'
+import type { Expression, Ordering } from 'sparqljs'
 import type { Client } from 'sparql-http-client'
 import type { StreamClient } from 'sparql-http-client/StreamClient.js'
 import rdf from '@zazuko/env'
@@ -12,33 +13,69 @@ export type { Env } from './QueryAnalyzer.js'
 
 export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term>
 
-export interface ExecuteOptions<C extends Client | undefined = Client> {
+export interface FromOptions {
+  default?: Term | string | Array<Term | string> | null
+  named?: Term | string | Array<Term | string> | null
+}
+
+export type OrderDirection = 'ASC' | 'DESC' | 'asc' | 'desc'
+
+export type OrderTuple<TVar extends string = string> =
+  | [TVar | Variable, OrderDirection]
+  | readonly [TVar | Variable, OrderDirection]
+
+export type OrderItem<TVar extends string = string> =
+  | TVar
+  | Variable
+  | OrderTuple<TVar>
+  | Ordering
+  | { expression: TVar | Variable | Expression; descending?: boolean }
+
+export type OrderBy<TVar extends string = string> =
+  | OrderItem<TVar>
+  | OrderItem<TVar>[]
+  | readonly OrderItem<TVar>[]
+
+export interface QueryModifiers<TVar extends string = string> {
+  base?: string | NamedNode | null
+  distinct?: boolean | null
+  from?: Term | string | Array<Term | string> | FromOptions | null
+  fromNamed?: Term | string | Array<Term | string> | null
+  limit?: number | null
+  offset?: number | null
+  orderBy?: OrderBy<TVar> | null
+}
+
+export interface Options<C extends Client | undefined = Client, TVar extends string = string> extends QueryModifiers<TVar> {
   env: Env
   client?: C
   processors?: Processor[]
 }
 
-export interface ExecuteSelect<Bindings extends Record<string, Term> = Record<string, Term>> {
-  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+export interface ExecuteSelect<
+  Bindings extends Record<string, Term> = Record<string, Term>,
+  TVar extends string = keyof Bindings & string,
+> {
+  <C extends Client | undefined = undefined>(...params: [...Params[], Options<C, TVar>]):
   C extends undefined ? Promise<string>
     : C extends StreamClient ? Promise<AsyncGenerator<Bindings>>
       : Promise<Bindings[]>
 }
 
-export interface ExecuteConstruct {
-  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+export interface ExecuteConstruct<TVar extends string = string> {
+  <C extends Client | undefined = undefined>(...params: [...Params[], Options<C, TVar>]):
   C extends undefined ? Promise<string>
     : C extends StreamClient ? Promise<Stream>
       : Promise<DatasetCore>
 }
 
-export interface ExecuteAsk {
-  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+export interface ExecuteAsk<TVar extends string = string> {
+  <C extends Client | undefined = undefined>(...params: [...Params[], Options<C, TVar>]):
   C extends undefined ? Promise<string> : Promise<boolean>
 }
 
 export interface ExecuteUpdate {
-  <C extends Client | undefined = undefined>(...params: [...Params[], ExecuteOptions<C>]):
+  <C extends Client | undefined = undefined>(...params: [...Params[], Options<C>]):
   C extends undefined ? Promise<string> : Promise<void>
 }
 
@@ -50,11 +87,7 @@ type Query = {
   execute: Execute
 }
 
-interface Options {
-  base?: string | NamedNode | null
-}
-
-export function compile(query: string, { base }: Options = {}): Query {
+export function compile(query: string, { base }: QueryModifiers = {}): Query {
   const baseIRI = base ? typeof base === 'string' ? base : base.value : undefined
 
   const parser = new Parser({
