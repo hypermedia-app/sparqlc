@@ -1,9 +1,9 @@
 import TermMap from '@rdfjs/term-map'
-import { isEnv, toTermMap } from 'sparqlc/runtime.js'
+import { isEnv, toTermMap, applyModifiers } from 'sparqlc/runtime.js'
 import Processor from 'sparqlc/processor.js'
 
 export default async function (...args) {
-  const { client, env, processors = [] } = args.pop()
+  const { client, env, processors = [], ...queryModifiers } = args.pop()
 
   if (!isEnv(env)) {
     throw new Error('Parameters must be followed by executor options. `env` is required.')
@@ -28,7 +28,7 @@ export default async function (...args) {
     method = 'construct'
   }
 
-  const queryString = new Generator().stringify(processed)
+  const queryString = new Generator().stringify(applyModifiers(processed, queryModifiers, env))
   if (!client) {
     return queryString
   }

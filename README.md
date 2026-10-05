@@ -270,10 +270,15 @@ The plugin internally generates virtual `.d.rq.ts` type stubs next to your `.rq`
 
 ## Runtime expectations
 
-All environments ultimately call `query.execute(..., { env, client, processors? })` produced by `sparqlc`.
+All environments ultimately call `query.execute(..., { env, client, processors?, ...options })` produced by `sparqlc`.
 - `env`: an RDF/JS environment (e.g. `@zazuko/env`)
 - `client`: optional `sparql-http-client` client; when omitted, `execute` returns the final SPARQL string instead of performing a request
 - `processors`: optional array of `@hydrofoil/sparql-processor` instances to transform the parsed query before serialization
+- `distinct`: `boolean` – dynamically add or remove the `DISTINCT` modifier
+- `from` / `fromNamed`: `NamedNode | string | (NamedNode | string)[]` – set default (`FROM`) or named (`FROM NAMED`) graph IRIs
+- `limit`: `number` – set or override `LIMIT`
+- `offset`: `number` – set or override `OFFSET`
+- `orderBy`: variable, direction tuple `[variable, 'ASC' | 'DESC']`, or array thereof – sort results (restricted to query variables in TypeScript)
 
 ## Examples
 
@@ -286,7 +291,7 @@ SELECT ?name WHERE { ?s foaf:name ?name }
 LIMIT 5
 ```
 
-And consuming it (works with the loader/plugins):
+And consuming it with runtime options (works with the loader/plugins):
 
 ```ts
 import query from './queries/people.rq'
@@ -296,7 +301,13 @@ import { StreamClient } from 'sparql-http-client'
 const env = rdf
 const client = new StreamClient({ endpointUrl: 'https://dbpedia.org/sparql' })
 
-const rows = await query.execute({ env, client })
+const rows = await query.execute({
+  env,
+  client,
+  limit: 10,
+  offset: 5,
+  orderBy: [['name', 'ASC']],
+})
 ```
 
 ---

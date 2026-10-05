@@ -46,6 +46,19 @@ describe('sparqlc', function () {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const result: Record<'foo', Term>[] = await query({ env, client: parsingClient })
       })
+
+      it('typechecks order variables', async function () {
+        const query: ExecuteSelect<Record<'foo', Term>, 'foo' | 'bar'> = sinon.stub()
+
+        // Valid variables
+        await query({ env, client: parsingClient, orderBy: 'bar' })
+        await query({ env, client: parsingClient, orderBy: [['bar', 'DESC'], 'foo'] })
+
+        // @ts-expect-error 'baz' is not in 'foo' | 'bar'
+        await query({ env, client: parsingClient, orderBy: 'baz' })
+        // @ts-expect-error 'baz' is not in 'foo' | 'bar'
+        await query({ env, client: parsingClient, orderBy: [['baz', 'DESC']] })
+      })
     })
 
     describe('ask query', function () {
@@ -117,6 +130,264 @@ describe('sparqlc', function () {
 
         // then
         expect(result[0].fruits.value).to.eq('4')
+      })
+
+      describe('runtime options', function () {
+        it('applies distinct', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            distinct: true,
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('removes distinct when false', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({ env, distinct: false })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies limit and offset', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            limit: 10,
+            offset: 5,
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('limits executed query results', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const result = await query({
+            env,
+            client: this.rdf.parsingClient,
+            limit: 2,
+          })
+
+          // then
+          expect(result.map((row: Record<string, { value: string }>) => Object.fromEntries(Object.entries(row).map(([k, v]) => [k, v.value])))).toMatchSnapshot()
+        })
+
+        it('applies from default graph', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            from: env.namedNode('http://example.org/graph'),
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies from default and named graphs via FromOptions', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            from: {
+              default: 'http://example.org/default-graph',
+              named: ['http://example.org/named-graph-1', env.namedNode('http://example.org/named-graph-2')],
+            },
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies fromNamed option', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            fromNamed: ['http://example.org/named-1'],
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies order by variable', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            orderBy: env.variable('label'),
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies order by descending expression object', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            orderBy: [{ expression: env.variable('label'), descending: true }],
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies order by array with tuples and strings', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            orderBy: [
+              ['label', 'DESC'],
+              'fruit',
+            ],
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('executes query with order by at runtime', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const ascResult = await query({
+            env,
+            client: this.rdf.parsingClient,
+            orderBy: ['label', 'ASC'],
+          })
+          const descResult = await query({
+            env,
+            client: this.rdf.parsingClient,
+            orderBy: ['label', 'DESC'],
+          })
+
+          // then
+          expect(ascResult.map((row: Record<string, { value: string }>) => Object.fromEntries(Object.entries(row).map(([k, v]) => [k, v.value])))).toMatchSnapshot()
+          expect(descResult.map((row: Record<string, { value: string }>) => Object.fromEntries(Object.entries(row).map(([k, v]) => [k, v.value])))).toMatchSnapshot()
+        })
+
+        it('removes order by when null or empty', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            orderBy: null,
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('removes limit and offset when null or negative', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            limit: null,
+            offset: -1,
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('removes dataset clauses when from is null', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            from: null,
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies string variable to orderBy', async function () {
+          // given
+          const { default: query } = await import('./queries/select-star.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            orderBy: 'fruit',
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies modifiers to construct query', async function () {
+          // given
+          const { default: query } = await import('./queries/construct-named-node-param.rq')
+          const params = env.termMap([
+            [env.ns.schema.mainEntity, fruits.Banana],
+          ])
+
+          // when
+          const queryString = await query(params, {
+            env,
+            limit: 5,
+            offset: 10,
+            from: 'http://example.org/graph',
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
+
+        it('applies modifiers to ask query', async function () {
+          // given
+          const { default: query } = await import('./queries/ask.rq')
+
+          // when
+          const queryString = await query({
+            env,
+            fromNamed: 'http://example.org/named-graph',
+          })
+
+          // then
+          expect(queryString).toMatchSnapshot()
+        })
       })
     })
 

@@ -1,0 +1,5 @@
+PREFIX fruits: <http://example.org/fruits/>
+
+ASK {
+  ?s a fruits:Fruit .
+}

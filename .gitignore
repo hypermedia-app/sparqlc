@@ -3,3 +3,4 @@ node_modules/
 *.d.ts
 !packages/ts-plugin-sparqlc/*.js
 coverage/
+.vitest-attachments/
