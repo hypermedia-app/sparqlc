@@ -1,0 +1,10 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX sparqlc: <https://sparqlc.described.at/>
+
+SELECT ?fruit ?label WHERE {
+  BIND (IRI(sparqlc:param(schema:mainEntity)) as ?fruit)
+  GRAPH ?g {
+    ?fruit rdfs:label ?label .
+  }
+}

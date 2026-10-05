@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Processor injects values both at root and inside GRAPH when variable is used at root and inside GRAPH 1`] = `
+"SELECT * WHERE {
+  VALUES ?_param_root {
+    \\"rootVal\\"
+  }
+  BIND(?_param_root AS ?root)
+  ?root ?p1 ?o1.
+  GRAPH <http://example.org/g> {
+    VALUES (?_param_root ?_param_graph) {
+      (\\"rootVal\\" \\"graphVal\\")
+    }
+    BIND(?_param_root AS ?root)
+    BIND(?_param_graph AS ?graph)
+    ?root ?p2 ?graph.
+  }
+}"
+`;
+
+exports[`Processor injects values in nested scopes (GRAPH inside OPTIONAL) 1`] = `
+"SELECT * WHERE {
+  ?s ?p ?o.
+  OPTIONAL {
+    GRAPH <http://example.org/g> {
+      VALUES ?_param_nested {
+        \\"nestedVal\\"
+      }
+      BIND(?_param_nested AS ?nested)
+      ?s ?p ?nested.
+    }
+  }
+}"
+`;
+
+exports[`Processor injects values in root where when parameter is used at root 1`] = `
+"SELECT * WHERE {
+  VALUES ?_param_foo {
+    \\"fooVal\\"
+  }
+  BIND(?_param_foo AS ?foo)
+  ?foo ?p ?o.
+}"
+`;
+
+exports[`Processor injects values inside FILTER in GRAPH 1`] = `
+"SELECT * WHERE {
+  GRAPH <http://example.org/g> {
+    VALUES ?_param_expected {
+      \\"testVal\\"
+    }
+    ?s ?p ?val.
+    FILTER(?val = ?_param_expected)
+  }
+}"
+`;
+
+exports[`Processor injects values inside GRAPH pattern when parameter is used inside GRAPH 1`] = `
+"SELECT * WHERE {
+  GRAPH <http://example.org/g> {
+    VALUES ?_param_var {
+      \\"varVal\\"
+    }
+    BIND(?_param_var AS ?var)
+    ?s ?p ?var.
+  }
+}"
+`;
+
+exports[`Processor injects values inside MINUS pattern 1`] = `
+"SELECT * WHERE {
+  ?s ?p ?o.
+  MINUS {
+    VALUES ?_param_minusParam {
+      \\"minusVal\\"
+    }
+    BIND(?_param_minusParam AS ?var)
+    ?s ?p ?var.
+  }
+}"
+`;
+
+exports[`Processor injects values inside OPTIONAL pattern 1`] = `
+"SELECT * WHERE {
+  ?s ?p ?o.
+  OPTIONAL {
+    VALUES ?_param_opt {
+      \\"optVal\\"
+    }
+    BIND(?_param_opt AS ?opt)
+    ?s <http://example.org/prop> ?opt.
+  }
+}"
+`;
+
+exports[`Processor injects values inside SERVICE pattern 1`] = `
+"SELECT * WHERE {
+  SERVICE <http://example.org/sparql> {
+    VALUES ?_param_serviceParam {
+      \\"serviceVal\\"
+    }
+    BIND(?_param_serviceParam AS ?var)
+    ?s ?p ?var.
+  }
+}"
+`;
+
+exports[`Processor injects values inside UNION branches 1`] = `
+"SELECT * WHERE {
+  {
+    VALUES ?_param_u1 {
+      \\"val1\\"
+    }
+    BIND(?_param_u1 AS ?u1)
+    ?s ?p ?u1.
+  }
+  UNION
+  {
+    VALUES ?_param_u2 {
+      \\"val2\\"
+    }
+    BIND(?_param_u2 AS ?u2)
+    ?s ?p ?u2.
+  }
+}"
+`;
+
+exports[`Processor injects values inside single-pattern UNION branches 1`] = `
+"SELECT * WHERE {
+  {
+    VALUES ?_param_u1 {
+      \\"val1\\"
+    }
+    BIND(?_param_u1 AS ?u1)
+  }
+  UNION
+  {
+    VALUES ?_param_u2 {
+      \\"val2\\"
+    }
+    BIND(?_param_u2 AS ?u2)
+  }
+}"
+`;
+
+exports[`Processor injects values into inner GRAPH pattern when param is defined outside and used in GRAPH 1`] = `
+"SELECT * WHERE {
+  GRAPH <http://example.org/g> {
+    VALUES (?_param_root ?_param_graph) {
+      (\\"rootVal\\" \\"graphVal\\")
+    }
+    BIND(?_param_root AS ?root)
+    BIND(?_param_graph AS ?graph)
+    ?root ?p ?graph.
+  }
+}"
+`;
