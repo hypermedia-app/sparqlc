@@ -8,6 +8,19 @@ TypeScript language service plugin that gives rich types for SPARQL query (`.rq`
 
 This plugin is editor-focused (TypeScript language service).
 
+For support when compiling with `tsc` you may need to explicitly call out the `sparql` type declarations
+in either `tsconfig.json`
+
+```json
+{
+  "compilerOptions": {
+    "types": ["sparqlc"]
+  }
+}
+```
+
+or somewhere in you code with `/// <reference types="sparqlc" />`.
+
 #### Install
 
 ```
