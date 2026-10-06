@@ -86,6 +86,29 @@ describe('sparqlc CLI', function () {
 
       expect(written).to.include('http://example.org/base/relative-path')
     })
+
+    it('runs with default process.argv when no arguments passed', function () {
+      const origArgv = process.argv
+      try {
+        const queryFile = path.join(tempDir, 'default-argv.rq')
+        fs.writeFileSync(queryFile, 'SELECT ?s WHERE { ?s ?p ?o }')
+        process.argv = ['node', 'sparqlc', queryFile]
+
+        let written = ''
+        const writeStub = sinon.stub(process.stdout, 'write').callsFake(((chunk: string | Uint8Array) => {
+          written += chunk.toString()
+          return true
+        }) as typeof process.stdout.write)
+
+        runCompilerCli()
+        writeStub.restore()
+
+        expect(written).to.include('sparqlc')
+      }
+      finally {
+        process.argv = origArgv
+      }
+    })
   })
 
   describe('integration', function () {

@@ -161,8 +161,8 @@ export function createCopySparqlFiles(
     if (!options.allowArbitraryExtensions) {
       const configKey = String(
         options.configFilePath
-        ?? program.getRootFileNames().slice().sort().join(';')
-        ?? program.getCurrentDirectory()
+        ?? program.getRootFileNames?.()?.slice()?.sort()?.join(';')
+        ?? program.getCurrentDirectory?.()
         ?? 'default',
       )
       if (!warnedProjects.has(configKey)) {
