@@ -22,6 +22,8 @@ jobs:
             path: packages/node-loader-sparql
           - name: vite-plugin-sparql
             path: packages/vite-plugin-sparql
+          - name: sparqlc-cli
+            path: packages/sparqlc-cli
     steps:
       - uses: actions/checkout@v7
       - uses: fabasoad/setup-prolog-action@v1

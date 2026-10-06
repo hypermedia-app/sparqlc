@@ -1,8 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "include": [
-    "index.ts",
+    "sparqlc.ts",
     "processor.ts",
-    "runtime.ts"
+    "runtime.ts",
+    "declarations.ts",
+    "QueryAnalyzer.ts"
   ]
 }
