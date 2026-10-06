@@ -1,5 +1,17 @@
 # esbuild-plugin-sparql
 
+## 0.2.0
+
+### Minor Changes
+
+- aee2ac3: Remove support for `sparqlc:param` used as a predicate
+
+### Patch Changes
+
+- Updated dependencies [44c09b9]
+- Updated dependencies [d0a2b76]
+  - sparqlc@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # sparqlc
 
+## 0.2.0
+
+### Minor Changes
+
+- 44c09b9: Remove support for `sparqlc:param` used as a predicate
+
+### Patch Changes
+
+- d0a2b76: `VALUES` clause containing values of `sparqlc:param` are now injected inside nested groups or `GRAPH` clauese to acommodate for SPARQL's bottom-up evaluation semantics
+
 ## 0.1.7
 
 ### Patch Changes
