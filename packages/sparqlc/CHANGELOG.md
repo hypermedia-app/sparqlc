@@ -1,5 +1,11 @@
 # sparqlc
 
+## 0.2.1
+
+### Patch Changes
+
+- 6788095: Allow `undefined` param passed to execute
+
 ## 0.2.0
 
 ### Minor Changes

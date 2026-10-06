@@ -1,5 +1,13 @@
 # node-loader-sparql
 
+## 0.2.1
+
+### Patch Changes
+
+- f7e4901: Use `module.registerHooks` where available
+- Updated dependencies [6788095]
+  - sparqlc@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
