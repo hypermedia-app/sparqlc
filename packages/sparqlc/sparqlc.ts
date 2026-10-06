@@ -11,7 +11,7 @@ import QueryAnalyzer from './QueryAnalyzer.js'
 
 export type { Env } from './QueryAnalyzer.js'
 
-export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term>
+export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term | undefined>
 
 export interface FromOptions {
   default?: Term | string | Array<Term | string> | null

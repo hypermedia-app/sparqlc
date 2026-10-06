@@ -20,7 +20,9 @@ export function toTermMap(map: Map<Term, Term | Term[]>, params: Params): Map<Te
   }
   else {
     for (const key of Object.keys(params)) {
-      map.set(rdf.literal(key), params[key])
+      if (params[key]) {
+        map.set(rdf.literal(key), params[key])
+      }
     }
   }
 
