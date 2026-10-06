@@ -638,6 +638,7 @@ describe('sparqlc-tsc', function () {
             allowArbitraryExtensions: true,
             noEmit: true,
             strict: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -662,6 +663,7 @@ async function test(client: ParsingClient, env: any) {
             allowArbitraryExtensions: true,
             noEmit: true,
             strict: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -704,6 +706,7 @@ async function test(client: ParsingClient, env: any) {
             allowArbitraryExtensions: true,
             noEmit: true,
             strict: true,
+            skipLibCheck: true,
           },
         }),
         'src/query.rq': 'SELECT ?s WHERE { ?s ?p ?o }',
@@ -732,6 +735,7 @@ async function test(client: ParsingClient, env: any) {
             allowArbitraryExtensions: true,
             outDir: 'dist',
             strict: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -773,6 +777,7 @@ async function test(client: ParsingClient, env: any) {
             outDir: 'dist',
             listEmittedFiles: true,
             strict: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -795,9 +800,8 @@ async function test(client: ParsingClient, env: any) {
       }
     })
 
-    it('--emitDeclarationOnly, noEmitOnError with error, and no outDir: no copies', async function () {
-    // 1. --emitDeclarationOnly
-      const dir1 = createFixtureDir({
+    it('--emitDeclarationOnly: does not copy SPARQL files', async function () {
+      const dir = createFixtureDir({
         'tsconfig.json': JSON.stringify({
           compilerOptions: {
             target: 'ES2022',
@@ -807,6 +811,7 @@ async function test(client: ParsingClient, env: any) {
             declaration: true,
             emitDeclarationOnly: true,
             outDir: 'dist',
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -814,16 +819,17 @@ async function test(client: ParsingClient, env: any) {
         'src/index.ts': "import q from './select.rq';\nexport default q;",
       })
       try {
-        const res1 = await runCli([], dir1)
-        expect(res1.code).to.eq(0)
-        expect(fs.existsSync(path.join(dir1, 'dist/select.rq'))).to.be.false
+        const res = await runCli([], dir)
+        expect(res.code).to.eq(0)
+        expect(fs.existsSync(path.join(dir, 'dist/select.rq'))).to.be.false
       }
       finally {
-        fs.rmSync(dir1, { recursive: true, force: true })
+        fs.rmSync(dir, { recursive: true, force: true })
       }
+    })
 
-      // 2. noEmitOnError with an error
-      const dir2 = createFixtureDir({
+    it('noEmitOnError with error: does not copy SPARQL files', async function () {
+      const dir = createFixtureDir({
         'tsconfig.json': JSON.stringify({
           compilerOptions: {
             target: 'ES2022',
@@ -832,6 +838,7 @@ async function test(client: ParsingClient, env: any) {
             allowArbitraryExtensions: true,
             outDir: 'dist',
             noEmitOnError: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -839,22 +846,24 @@ async function test(client: ParsingClient, env: any) {
         'src/index.ts': "import q from './select.rq';\nconst error: number = 'string';",
       })
       try {
-        const res2 = await runCli([], dir2)
-        expect(res2.code).to.not.eq(0)
-        expect(fs.existsSync(path.join(dir2, 'dist/select.rq'))).to.be.false
+        const res = await runCli([], dir)
+        expect(res.code).to.not.eq(0)
+        expect(fs.existsSync(path.join(dir, 'dist/select.rq'))).to.be.false
       }
       finally {
-        fs.rmSync(dir2, { recursive: true, force: true })
+        fs.rmSync(dir, { recursive: true, force: true })
       }
+    })
 
-      // 3. No outDir
-      const dir3 = createFixtureDir({
+    it('no outDir: does not copy SPARQL files', async function () {
+      const dir = createFixtureDir({
         'tsconfig.json': JSON.stringify({
           compilerOptions: {
             target: 'ES2022',
             module: 'NodeNext',
             moduleResolution: 'NodeNext',
             allowArbitraryExtensions: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -862,13 +871,13 @@ async function test(client: ParsingClient, env: any) {
         'src/index.ts': "import q from './select.rq';\nexport default q;",
       })
       try {
-        const res3 = await runCli([], dir3)
-        expect(res3.code).to.eq(0)
+        const res = await runCli([], dir)
+        expect(res.code).to.eq(0)
         // JS emitted alongside TS, but select.rq should not be copied or modified
-        expect(fs.existsSync(path.join(dir3, 'src/index.js'))).to.be.true
+        expect(fs.existsSync(path.join(dir, 'src/index.js'))).to.be.true
       }
       finally {
-        fs.rmSync(dir3, { recursive: true, force: true })
+        fs.rmSync(dir, { recursive: true, force: true })
       }
     })
 
@@ -882,6 +891,7 @@ async function test(client: ParsingClient, env: any) {
             allowArbitraryExtensions: true,
             noEmit: true,
             strict: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -936,6 +946,7 @@ async function test(client: ParsingClient, env: any) {
             allowArbitraryExtensions: true,
             outDir: 'dist',
             rootDir: 'src',
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -969,6 +980,7 @@ async function test(client: ParsingClient, env: any) {
             outDir: 'dist',
             rootDir: 'src',
             listEmittedFiles: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
@@ -1007,6 +1019,7 @@ async function test(client: ParsingClient, env: any) {
             allowArbitraryExtensions: true,
             noEmit: true,
             strict: true,
+            skipLibCheck: true,
           },
           include: ['src/**/*'],
         }),
