@@ -1,6 +1,6 @@
 {
   "name": "sparqlc-cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "commander": "13 - 15",
-    "sparqlc": "^0.2.0"
+    "sparqlc": "^0.3.0"
   },
   "peerDependencies": {
     "typescript": "5 || 6"
