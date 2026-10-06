@@ -9,7 +9,7 @@
     "index.d.ts"
   ],
   "scripts": {
-    "test": "vitest",
+    "test": "NODE_OPTIONS=\"--import tsx\" vitest",
     "build": "tsc",
     "prepack": "npm run build"
   },

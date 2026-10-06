@@ -10,7 +10,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "pretest": "npm run build",
     "test": "mocha",
     "prepack": "npm run build"
   },
