@@ -30,7 +30,7 @@
     "sparqlc": "^0.2.0"
   },
   "peerDependencies": {
-    "typescript": ">=5.0.0"
+    "typescript": "5 || 6"
   },
   "devDependencies": {
     "@types/chai": "^5",

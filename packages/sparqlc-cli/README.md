@@ -22,7 +22,7 @@ While [`ts-plugin-sparqlc`](https://github.com/hypermedia-app/sparqlc/tree/maste
 
 ### Peer Dependency Notice
 
-`sparqlc-tsc` relies on TypeScript 5.x. It interfaces with TypeScript's CLI via `ts.executeCommandLine` and `program.getCommonSourceDirectory()`, which are available on the `ts` namespace in TypeScript 5.x.
+`sparqlc-tsc` relies on TypeScript 5.x or 6.x. It interfaces with TypeScript's CLI via `ts.executeCommandLine` and `program.getCommonSourceDirectory()`, which are available on the `ts` namespace in TypeScript 5 and 6.
 
 ### Configuration
 
