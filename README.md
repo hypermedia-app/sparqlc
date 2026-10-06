@@ -79,14 +79,16 @@ const rows = await execute(params, { env, client })
 
 ### Reference parameters with `sparqlc:param`
 
-You can declare and consume query parameters inside `.rq` files using the RDF property/function identified by `https://sparqlc.described.at/param` (IRI). Use a prefix for convenience:
+You can declare and consume query parameters inside `.rq` files using the SPARQL function identified by `https://sparqlc.described.at/param` (IRI). Use a prefix for convenience:
 
 ```sparql
 PREFIX sparqlc: <https://sparqlc.described.at/>
 ```
 
-- (Recommended) Function style: `sparqlc:param("name")`
+- Parameter function: `sparqlc:param("name")` or `sparqlc:param(prefix:name)`
   - Can be easily inlined in `BIND`, `FILTER`, or anywhere an expression is allowed.
+  - String literal keys: `BIND(sparqlc:param("minAge") AS ?minAge)`
+  - NamedNode / IRI keys: `BIND(sparqlc:param(schema:mainEntity) AS ?entity)`
   - Example:
     ```sparql
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -97,37 +99,22 @@ PREFIX sparqlc: <https://sparqlc.described.at/>
       FILTER (?age >= sparqlc:param("minAge"))
     }
     ```
-
-- Pattern style: `?variable sparqlc:param "name" .`
-  - This binds the value of the parameter `"name"` to the SPARQL variable `?variable`.
-  - Example:
-    ```sparql
-    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    PREFIX sparqlc: <https://sparqlc.described.at/>
-    
-    SELECT ?person WHERE {
-      ?name sparqlc:param "person" .  
-    
-      ?person a foaf:Person ;
-              foaf:name ?name .
-    }
-    ```
     Runtime call:
     ```ts
     import env from '@zazuko/env'
-    const rows = await execute({ person: env.namedNode('http://example.com/alice') }, { env, client })
+    const rows = await execute({ minAge: env.literal('18', env.ns.xsd.integer) }, { env, client })
     ```
 
 Passing parameters at runtime
 - You may pass parameters as:
   - `Record<string, Term>`: `{ person: env.namedNode('...'), minAge: env.literal('18', xsdInteger) }`
   - `URLSearchParams`: `new URLSearchParams([["person", "http://example.com/alice"], ["minAge", "18"]])` (simple string values)
-  - `Map<Term, Term | Term[]>` for full control
+  - `Map<Term, Term | Term[]>` to use NamedNode parameter names
 - Values are RDFJS `Term`s. For typed literals, construct them via your RDF environment (e.g., `@zazuko/env`).
 
 Notes
 - The parameter IRI is exactly `https://sparqlc.described.at/param`.
-- Use `PREFIX sparqlc: <https://sparqlc.described.at/>` so `sparqlc:param` expands to that IRI in both triple and function forms.
+- Use `PREFIX sparqlc: <https://sparqlc.described.at/>` so `sparqlc:param` expands to that IRI.
 - Arrays (`Term[]`) are supported by the runtime API for positions that accept multiple terms (e.g., via custom processors). Your usage may vary depending on processors you apply.
 
 ### CLI usage

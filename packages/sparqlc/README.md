@@ -62,18 +62,99 @@ const { default: insertData } = await import('./queries/insert-data.ru')
 await insertData({ env, client })
 ```
 
-#### Binding parameters
+#### Binding parameters with `sparqlc:param`
 
-Queries can declare variables to be bound at execution time. Provide a map of RDF terms as the first argument. Keys may be full variable names or well‑known IRIs (helpful with `@zazuko/env`).
+Queries can declare variables and placeholders to be bound at execution time using the `sparqlc:param` SPARQL function.
 
-```ts
-const params = env.termMap([
-  [env.ns.schema.mainEntity, env.namedNode('http://example.org/fruits/Banana')],
-])
+##### Declaring parameters in SPARQL queries
 
-const { default: construct } = await import('./queries/construct-named-node-param.rq')
-const dataset = await construct(params, { env, client })
+Declare the `sparqlc:` prefix:
+
+```sparql
+PREFIX sparqlc: <https://sparqlc.described.at/>
 ```
+
+You can use `sparqlc:param(...)` in `BIND(...)` expressions, `FILTER(...)` expressions, or anywhere SPARQL expressions are valid:
+
+- **String literal parameter keys**: Identify parameters by string name.
+  ```sparql
+  # queries/select-by-type.rq
+  PREFIX sparqlc: <https://sparqlc.described.at/>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  SELECT ?res ?label WHERE {
+    BIND(sparqlc:param("type") AS ?type)
+
+    ?res a ?type ;
+         rdfs:label ?label .
+  }
+  ```
+
+- **NamedNode / IRI parameter keys**: Identify parameters using full IRIs or prefixed names (such as schema.org terms).
+  ```sparql
+  # queries/construct-named-node-param.rq
+  PREFIX sparqlc: <https://sparqlc.described.at/>
+  PREFIX schema: <http://schema.org/>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  CONSTRUCT {
+    ?fruit rdfs:label ?label .
+  } WHERE {
+    BIND(IRI(sparqlc:param(schema:mainEntity)) AS ?fruit)
+
+    ?fruit rdfs:label ?label .
+  }
+  ```
+
+- **In `FILTER` expressions**:
+  ```sparql
+  PREFIX sparqlc: <https://sparqlc.described.at/>
+
+  SELECT ?s ?val WHERE {
+    ?s ?p ?val .
+    FILTER(?val = sparqlc:param("expected"))
+  }
+  ```
+
+- **Scoped evaluation**: `sparqlc:param` can be used inside `GRAPH`, `OPTIONAL`, `SERVICE`, `MINUS`, unions, sub-selects, and update operations (`INSERT`, `DELETE`). Parameter values are injected into the query via appropriately scoped `VALUES` clauses according to SPARQL bottom-up evaluation semantics.
+
+##### Passing parameters at execution time
+
+Pass parameter values as the first argument(s) to the imported query function. `sparqlc` supports several formats:
+
+- **Plain object dictionary (`Record<string, Term>`)**:
+  ```ts
+  import env from '@zazuko/env'
+  const { default: selectByType } = await import('./queries/select-by-type.rq')
+
+  const rows = await selectByType(
+    { type: env.namedNode('http://example.org/Fruit') },
+    { env, client }
+  )
+  ```
+
+- **RDF/JS `TermMap` / `Map<Term, Term | Term[]>`**: Useful for NamedNode parameter keys and full control over RDF terms.
+  ```ts
+  import env from '@zazuko/env'
+  const { default: construct } = await import('./queries/construct-named-node-param.rq')
+
+  const params = env.termMap([
+    [env.ns.schema.mainEntity, env.namedNode('http://example.org/fruits/Banana')],
+  ])
+
+  const dataset = await construct(params, { env, client })
+  ```
+
+- **`URLSearchParams`**: Useful for query strings.
+  ```ts
+  const params = new URLSearchParams([['type', 'http://example.org/Fruit']])
+  const rows = await selectByType(params, { env, client })
+  ```
+
+- **Multiple parameter sources**: Multiple parameter maps or objects can be provided in sequence before the options argument.
+  ```ts
+  const rows = await selectQuery(params1, params2, { env, client })
+  ```
 
 #### Runtime query options
 
