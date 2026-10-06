@@ -22,8 +22,6 @@ jobs:
             path: packages/node-loader-sparql
           - name: vite-plugin-sparql
             path: packages/vite-plugin-sparql
-          - name: sparqlc-cli
-            path: packages/sparqlc-cli
     steps:
       - uses: actions/checkout@v7
       - uses: fabasoad/setup-prolog-action@v1
@@ -41,6 +39,38 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ matrix.package.name }}
+
+  sparql-cli:
+    name: sparql-cli (TS ${{ matrix.typescript }}, node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [ "lts/*" ]
+        typescript: [ "5", "6", "7", "next" ]
+        include:
+          - node: "lts/-1"
+            typescript: "5"
+          - node: "lts/-2"
+            typescript: "5"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: fabasoad/setup-prolog-action@v1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci
+      - name: Install target TypeScript version in sparqlc-cli
+        run: npm install --no-save typescript@${{ matrix.typescript }} -w packages/sparqlc-cli
+        continue-on-error: ${{ matrix.typescript == 'next' }}
+      - name: Run CLI tests against target TypeScript version
+        run: npx c8 --all --src packages/sparqlc-cli --include packages/sparqlc-cli --reporter lcovonly --reporter text npm run -w sparqlc-cli test
+        continue-on-error: ${{ matrix.typescript == 'next' }}
+      - name: Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: sparqlc-cli
 
   lint:
     runs-on: ubuntu-latest
