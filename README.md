@@ -1,304 +1,85 @@
-# sparqlc monorepo
+# sparqlc
 
-A set of tools for compiling and using SPARQL queries as first‑class modules across Node.js, Vite, esbuild, and TypeScript.
+Typed SPARQL query modules for TypeScript and JavaScript across Node.js, Vite, and esbuild.
 
-Packages (in usage order):
-- `sparqlc` – core compiler and runtime (JS API)
-- `sparqlc-cli` – CLI tools (`sparqlc-tsc` drop-in replacement for `tsc`, and `sparqlc` CLI compiler)
-- `node-loader-sparql` – Node.js loader to import `.rq` files directly
-- `vite-plugin-sparql` – Vite plugin to import `.rq` in web apps
-- `esbuild-plugin-sparql` – esbuild plugin to import `.rq`
-- `ts-plugin-sparqlc` – TypeScript language service plugin to get strong types for `.rq` imports in IDEs
+Write SPARQL queries in `.rq` (query) and `.ru` (update) files, import them directly as ECMAScript modules, and execute them with strong types against a SPARQL endpoint or RDF/JS dataset.
 
-## Installation
+## Packages
 
-In most projects you do not install `sparqlc` directly. Instead, add the high‑level integration you use — it will pull `sparqlc` as a dependency:
+- **[`sparqlc`](./packages/sparqlc)** – Core compiler and runtime library (JS API, query analysis, parameter binding).
+- **[`sparqlc-cli`](./packages/sparqlc-cli)** – CLI tools: `sparqlc-tsc` (a drop-in replacement for `tsc` that type-checks `.rq`/`.ru` imports and copies assets) and `sparqlc` (standalone query compiler).
+- **[`node-loader-sparql`](./packages/node-loader-sparql)** – Node.js ESM loader to import `.rq`/`.ru` files directly at runtime.
+- **[`vite-plugin-sparql`](./packages/vite-plugin-sparql)** – Vite plugin for importing and bundling SPARQL queries in web applications.
+- **[`esbuild-plugin-sparql`](./packages/esbuild-plugin-sparql)** – esbuild plugin to bundle SPARQL queries.
+- **[`ts-plugin-sparqlc`](./packages/ts-plugin-sparqlc)** – TypeScript language service plugin providing editor type inference and autocomplete for `.rq`/`.ru` imports.
 
-- Node.js (import `.rq` in Node):
-  ```sh
-  npm i -D node-loader-sparql
-  ```
-- Vite (web apps):
-  ```sh
-  npm i -D vite-plugin-sparql
-  ```
-- esbuild:
-  ```sh
-  npm i -D esbuild-plugin-sparql
-  ```
-- TypeScript editor types for `.rq` imports:
-  ```sh
-  npm i -D ts-plugin-sparqlc
-  ```
+## Quick Start
 
-Only install `sparqlc` itself if you want to call the core API or use the CLI directly:
+### 1. Install
+
+Install the integration appropriate for your environment:
 
 ```sh
-npm i sparqlc
+# For Node.js runtime imports:
+npm i -D node-loader-sparql
+
+# For Vite:
+npm i -D vite-plugin-sparql
+
+# For esbuild:
+npm i -D esbuild-plugin-sparql
+
+# For TypeScript IDE support:
+npm i -D ts-plugin-sparqlc
+
+# For command-line type-checking and builds:
+npm i -D sparqlc-cli
 ```
 
-Below you’ll find usage for each package.
-
----
-
-## 1) `sparqlc` (core)
-
-`sparqlc` compiles a SPARQL string into a small executable function with:
-- `code` – the emitted function source (stringified)
-- `returnType` – inferred SPARQL result kind: `Select | Construct | Ask | Update | unknown`
-- `execute` – a function that, when given parameters and an executor `{ env, client, processors }`, will either:
-  - return a SPARQL string (when no `client` is provided), or
-  - execute the query using `sparql-http-client` and return typed results based on `returnType`
-
-### API usage
-
-```ts
-import { compile } from 'sparqlc'
-import env from '@zazuko/env'
-import { StreamClient } from 'sparql-http-client'
-
-const source = `
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?name WHERE { ?s foaf:name ?name }
-LIMIT 10
-`
-
-const { execute, returnType } = compile(source)
-console.log(returnType) // e.g. 'Select'
-
-// Build executor options
-const client = new StreamClient({ endpointUrl: 'https://dbpedia.org/sparql' })
-
-// Optional parameterization examples (URLSearchParams, object, or Map<Term, Term|Term[]>)
-const params = { name: env.literal('Alice') }
-
-// Execute:
-const rows = await execute(params, { env, client })
-// If you omit `client`, execute(...) returns the final SPARQL string instead
-```
-
-### Reference parameters with `sparqlc:param`
-
-You can declare and consume query parameters inside `.rq` files using the SPARQL function identified by `https://sparqlc.described.at/param` (IRI). Use a prefix for convenience:
+### 2. Write a Query
 
 ```sparql
+# queries/find-fruits.rq
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX sparqlc: <https://sparqlc.described.at/>
-```
 
-- Parameter function: `sparqlc:param("name")` or `sparqlc:param(prefix:name)`
-  - Can be easily inlined in `BIND`, `FILTER`, or anywhere an expression is allowed.
-  - String literal keys: `BIND(sparqlc:param("minAge") AS ?minAge)`
-  - NamedNode / IRI keys: `BIND(sparqlc:param(schema:mainEntity) AS ?entity)`
-  - Example:
-    ```sparql
-    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    PREFIX sparqlc: <https://sparqlc.described.at/>
-    
-    SELECT ?name ?age WHERE {
-      ?s foaf:name ?name ; foaf:age ?age .
-      FILTER (?age >= sparqlc:param("minAge"))
-    }
-    ```
-    Runtime call:
-    ```ts
-    import env from '@zazuko/env'
-    const rows = await execute({ minAge: env.literal('18', env.ns.xsd.integer) }, { env, client })
-    ```
+SELECT ?fruit ?label WHERE {
+  BIND(sparqlc:param("category") AS ?category)
 
-Passing parameters at runtime
-- You may pass parameters as:
-  - `Record<string, Term>`: `{ person: env.namedNode('...'), minAge: env.literal('18', xsdInteger) }`
-  - `URLSearchParams`: `new URLSearchParams([["person", "http://example.com/alice"], ["minAge", "18"]])` (simple string values)
-  - `Map<Term, Term | Term[]>` to use NamedNode parameter names
-- Values are RDFJS `Term`s. For typed literals, construct them via your RDF environment (e.g., `@zazuko/env`).
-
-Notes
-- The parameter IRI is exactly `https://sparqlc.described.at/param`.
-- Use `PREFIX sparqlc: <https://sparqlc.described.at/>` so `sparqlc:param` expands to that IRI.
-- Arrays (`Term[]`) are supported by the runtime API for positions that accept multiple terms (e.g., via custom processors). Your usage may vary depending on processors you apply.
-
-### CLI usage
-
-`sparqlc` also ships a tiny CLI wrapper that can be used to process a query and print the effective query:
-
-```sh
-npx sparqlc file.rq [param1=value1 param2=value2 ...]
-```
-
-Parameter values are string parsed using [rdf-string](https://npm.im/rdf-string).
-
-Typical pattern is to use the library API in your build tool via the plugins below; the CLI is primarily for local debugging.
-
----
-
-## 2) `node-loader-sparql`
-
-Import `.rq` files directly in Node.js. The loader compiles the query on‑the‑fly and makes the default export be the executable query function (typed at runtime) compatible with `sparqlc`’s `execute` signature.
-
-### Run with Node’s loader flag
-
-```sh
-node --experimental-loader=node-loader-sparql ./app.mjs
-# Node 22+ keeps the loader flag; ES module specifiers are supported
-```
-
-Now you can do:
-
-```ts
-// app.mjs (or .ts with tsx/ts-node)
-import query from './queries/find-people.rq'
-import rdf from '@zazuko/env'
-import { StreamClient } from 'sparql-http-client'
-
-const env = rdf
-const client = new StreamClient({ endpointUrl: 'https://dbpedia.org/sparql' })
-
-const rows = await query({ env, client })
-console.log(rows)
-```
-
----
-
-## 3) `vite-plugin-sparql`
-
-Use `.rq` files seamlessly in Vite projects. The plugin compiles the query at transform time.
-
-### Setup
-
-```ts
-// vite.config.ts
-import { defineConfig } from 'vite'
-import sparql from 'vite-plugin-sparql'
-
-export default defineConfig({
-  plugins: [sparql],
-})
-```
-
-### Usage in app code
-
-```ts
-import query from './queries/people.rq'
-import rdf from '@zazuko/env'
-import { StreamClient } from 'sparql-http-client'
-
-const env = rdf
-const client = new StreamClient({ endpointUrl: '/sparql' })
-
-const data = await query({ env, client })
-```
-
----
-
-## 4) `esbuild-plugin-sparql`
-
-Add support for importing `.rq` in esbuild builds.
-
-### Minimal build script
-
-```ts
-// build.ts
-import { build } from 'esbuild'
-import sparql from 'esbuild-plugin-sparql'
-
-await build({
-  entryPoints: ['src/index.ts'],
-  bundle: true,
-  format: 'esm',
-  platform: 'node',
-  plugins: [sparql],
-})
-```
-
-Then in your sources:
-
-```ts
-import query from './queries/people.rq'
-// … use query.execute({ env, client })
-```
-
-If you’re bundling for Node ESM and also using `require()` somewhere, you may need to add a `banner` to create a `require` shim (see the repo tests for an example).
-
----
-
-## 5) `ts-plugin-sparqlc`
-
-TypeScript language service plugin that gives proper types for `.rq` default exports based on the query’s `returnType`. That means you’ll get:
-- Autocomplete/typed signatures for `execute`
-- Distinct return types for `Select`, `Construct`, `Ask`, and `Update`
-
-### Configure `tsconfig.json`
-
-```jsonc
-{
-  "compilerOptions": {
-    // Let TS consider non‑TS imports so the plugin can attach types
-    "allowArbitraryExtensions": true,
-
-    // Enable the plugin
-    "plugins": [
-      { "name": "ts-plugin-sparqlc" }
-    ]
-  }
+  ?fruit a ?category ;
+         rdfs:label ?label .
 }
 ```
 
-### What you get in TS
+### 3. Import and Execute
 
 ```ts
-import query from './queries/people.rq'
+import env from '@zazuko/env'
+import { ParsingClient } from 'sparql-http-client'
+import findFruits from './queries/find-fruits.rq'
 
-// Hovering shows: ExecuteSelect | ExecuteConstruct | ... depending on the query
-const result = await query({ env, client })
+const client = new ParsingClient({ endpointUrl: 'https://example.org/sparql' })
+
+const rows = await findFruits(
+  { category: env.namedNode('http://example.org/Fruit') },
+  { env, client }
+)
+
+for (const row of rows) {
+  console.log(row.fruit.value, row.label.value)
+}
 ```
 
-The plugin internally generates virtual `.d.rq.ts` type stubs next to your `.rq` files and keeps them in sync with your editor session—no files are written to disk.
+## Documentation
 
----
+For detailed guides, configuration options, and API documentation, refer to the individual packages:
 
-## Runtime expectations
-
-All environments ultimately call `query.execute(..., { env, client, processors?, ...options })` produced by `sparqlc`.
-- `env`: an RDF/JS environment (e.g. `@zazuko/env`)
-- `client`: optional `sparql-http-client` client; when omitted, `execute` returns the final SPARQL string instead of performing a request
-- `processors`: optional array of `@hydrofoil/sparql-processor` instances to transform the parsed query before serialization
-- `distinct`: `boolean` – dynamically add or remove the `DISTINCT` modifier
-- `from` / `fromNamed`: `NamedNode | string | (NamedNode | string)[]` – set default (`FROM`) or named (`FROM NAMED`) graph IRIs
-- `limit`: `number` – set or override `LIMIT`
-- `offset`: `number` – set or override `OFFSET`
-- `orderBy`: variable, direction tuple `[variable, 'ASC' | 'DESC']`, or array thereof – sort results (restricted to query variables in TypeScript)
-
-## Examples
-
-A typical `.rq` file:
-
-```sparql
-# queries/people.rq
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?name WHERE { ?s foaf:name ?name }
-LIMIT 5
-```
-
-And consuming it with runtime options (works with the loader/plugins):
-
-```ts
-import query from './queries/people.rq'
-import rdf from '@zazuko/env'
-import { StreamClient } from 'sparql-http-client'
-
-const env = rdf
-const client = new StreamClient({ endpointUrl: 'https://dbpedia.org/sparql' })
-
-const rows = await query.execute({
-  env,
-  client,
-  limit: 10,
-  offset: 5,
-  orderBy: [['name', 'ASC']],
-})
-```
-
----
+- [Core compiler and runtime (`sparqlc`)](./packages/sparqlc/README.md)
+- [CLI utilities and `sparqlc-tsc` (`sparqlc-cli`)](./packages/sparqlc-cli/README.md)
+- [Node.js ESM loader (`node-loader-sparql`)](./packages/node-loader-sparql/README.md)
+- [Vite plugin (`vite-plugin-sparql`)](./packages/vite-plugin-sparql/README.md)
+- [esbuild plugin (`esbuild-plugin-sparql`)](./packages/esbuild-plugin-sparql/README.md)
+- [TypeScript language service plugin (`ts-plugin-sparqlc`)](./packages/ts-plugin-sparqlc/README.md)
 
 ## License
 
