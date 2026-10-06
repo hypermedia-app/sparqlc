@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-sparql",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "main": "index.js",
   "files": [
@@ -21,7 +21,7 @@
     "directory": "packages/vite-plugin-sparql"
   },
   "dependencies": {
-    "sparqlc": "^0.1.5"
+    "sparqlc": "^0.2.0"
   },
   "peerDependencies": {
     "vite": ">=6"

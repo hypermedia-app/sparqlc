@@ -1,5 +1,13 @@
 # ts-plugin-sparqlc
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [44c09b9]
+- Updated dependencies [d0a2b76]
+  - sparqlc@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes

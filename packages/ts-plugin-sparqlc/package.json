@@ -1,6 +1,6 @@
 {
   "name": "ts-plugin-sparqlc",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "directory": "packages/ts-plugin-sparqlc"
   },
   "dependencies": {
-    "sparqlc": "^0.1.7"
+    "sparqlc": "^0.2.0"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
