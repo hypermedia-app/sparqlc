@@ -1,5 +1,5 @@
 const path = require('node:path')
-const { compile } = require('sparqlc')
+const { toDeclaration } = require('sparqlc/declarations.js')
 
 const projects = new Map()
 
@@ -26,28 +26,14 @@ function init(modules) {
     }
 
     function buildDtsContent(rqSource) {
-      if (!compile) {
-        log('Error: sparqlc.compile is not available. Please ensure sparqlc is built.')
+      if (!toDeclaration) {
+        log('Error: sparqlc/declarations is not available. Please ensure sparqlc is built.')
         return 'export {}'
       }
       try {
-        const compiled = compile(rqSource, {
+        return toDeclaration(rqSource, {
           base: 'http://example.org/',
         })
-        const queryType = compiled.returnType === 'unknown'
-          ? 'unknown'
-          : `sparqlc.Execute${compiled.returnType}`
-
-        let bindingsType = ''
-        if (queryType.startsWith('sparqlc.ExecuteSelect')) {
-          bindingsType = `export type Bindings = ${queryType} extends sparqlc.ExecuteSelect<infer B> ? B : never;`
-        }
-
-        return `import type * as sparqlc from "sparqlc";
-${bindingsType}
-declare const _default: ${queryType}
-export default _default
-`
       }
       catch (e) {
         log(`Compile error: ${e.message}`)

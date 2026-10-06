@@ -3,18 +3,15 @@
   "version": "0.2.1",
   "type": "module",
   "main": "index.js",
-  "bin": {
-    "sparqlc": "./bin/sparqlc.sh"
-  },
   "files": [
     "CHANGELOG.md",
-    "bin",
     "*.js",
     "*.d.ts"
   ],
   "scripts": {
-    "test": "mocha",
     "build": "tsc",
+    "pretest": "npm run build",
+    "test": "mocha",
     "prepack": "npm run build"
   },
   "author": "Tomasz Pluskiewicz",
@@ -28,6 +25,7 @@
     "@hydrofoil/sparql-processor": "^0.2.2",
     "@rdfjs/data-model": "^2.1.1",
     "@rdfjs/term-map": "^2.0.2",
+    "@rdfjs/types": "^2.0.1",
     "@zazuko/env": "^3.0.1",
     "@zazuko/prefixes": "^2.6.1",
     "rdf-string": "^2.0.1",
@@ -49,6 +47,7 @@
     "extends": "../../package.json",
     "require": [
       "node-loader-sparql",
+      "tsx",
       "./mocha-setup.js"
     ]
   }

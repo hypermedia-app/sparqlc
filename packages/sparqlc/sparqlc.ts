@@ -9,6 +9,7 @@ import type { Processor } from '@hydrofoil/sparql-processor'
 import type { Env } from './QueryAnalyzer.js'
 import QueryAnalyzer from './QueryAnalyzer.js'
 
+export type { DatasetCore, Stream, Term, NamedNode, Variable } from '@rdfjs/types'
 export type { Env } from './QueryAnalyzer.js'
 
 export type Params = URLSearchParams | Map<Term, Term | Term[]> | Record<string, Term | undefined>
@@ -81,7 +82,7 @@ export interface ExecuteUpdate {
 
 export type Execute = ExecuteSelect | ExecuteConstruct | ExecuteAsk | ExecuteUpdate
 
-type Query = {
+export type Query = {
   code: string
   returnType: string
   execute: Execute

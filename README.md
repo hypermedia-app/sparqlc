@@ -3,11 +3,12 @@
 A set of tools for compiling and using SPARQL queries as first‑class modules across Node.js, Vite, esbuild, and TypeScript.
 
 Packages (in usage order):
-- `sparqlc` – core compiler and runtime (JS API + CLI)
+- `sparqlc` – core compiler and runtime (JS API)
+- `sparqlc-cli` – CLI tools (`sparqlc-tsc` drop-in replacement for `tsc`, and `sparqlc` CLI compiler)
 - `node-loader-sparql` – Node.js loader to import `.rq` files directly
 - `vite-plugin-sparql` – Vite plugin to import `.rq` in web apps
 - `esbuild-plugin-sparql` – esbuild plugin to import `.rq`
-- `ts-plugin-sparqlc` – TypeScript language service plugin to get strong types for `.rq` imports
+- `ts-plugin-sparqlc` – TypeScript language service plugin to get strong types for `.rq` imports in IDEs
 
 ## Installation
 
