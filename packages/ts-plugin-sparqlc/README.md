@@ -30,7 +30,7 @@ npm i -D ts-plugin-sparqlc sparqlc
 
 #### Enable in tsconfig
 
-Add the plugin to your `tsconfig.json` under `compilerOptions.plugins`.
+Add the plugin to your `tsconfig.json` under `compilerOptions.plugins`, and enable `allowArbitraryExtensions` so TypeScript can resolve `.rq` and `.ru` imports:
 
 ```json
 {
@@ -38,6 +38,7 @@ Add the plugin to your `tsconfig.json` under `compilerOptions.plugins`.
     "strict": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "allowArbitraryExtensions": true,
     "plugins": [
       { "name": "ts-plugin-sparqlc" }
     ]
@@ -87,7 +88,7 @@ At runtime you can pass a base IRI for resolving relative IRIs using ESM import 
 const { default: q } = await import('./queries/select-relative-uris.rq', {
   with: { base: 'http://example.org/fruits/' },
 })
-``;
+```
 
 #### Works with runtime loaders
 

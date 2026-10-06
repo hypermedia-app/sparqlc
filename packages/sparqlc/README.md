@@ -54,6 +54,12 @@ const rows = await selectBanana({ env, client })
 // → [{ label: env.literal('Banana') }, ...]
 ```
 
+If you omit `client` from options, the function returns the final serialized SPARQL string instead of executing an HTTP request:
+
+```ts
+const sparqlQueryString = await selectBanana({ env })
+```
+
 Updates (`.ru`) export an executable function returning `void` when used with a `ParsingClient`:
 
 ```ts
@@ -165,6 +171,7 @@ Queries can be modified at execution time using runtime options:
 - `limit`: `number` — specify or override `LIMIT`
 - `offset`: `number` — specify or override `OFFSET`
 - `orderBy`: variable, direction tuple `[variable, 'ASC' | 'DESC']`, or array thereof — sort results with compile-time type checking restricted to variables present in the query
+- `processors`: optional array of `@hydrofoil/sparql-processor` instances to transform the parsed query before serialization
 
 ```ts
 const rows = await selectFruit({
@@ -183,6 +190,30 @@ const rows = await selectFruit({
     env.namedNode('http://example.org/graphs/fruits-2'),
   ],
 })
+```
+
+#### Programmatic API (`compile`)
+
+`sparqlc` provides a `compile` function to compile SPARQL query strings directly in JavaScript or TypeScript:
+
+```ts
+import { compile } from 'sparqlc'
+import env from '@zazuko/env'
+import { ParsingClient } from 'sparql-http-client'
+
+const source = `
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?name WHERE { ?s foaf:name ?name }
+LIMIT 10
+`
+
+const { execute, returnType } = compile(source)
+console.log(returnType) // e.g. 'Select'
+
+const client: ParsingClient = /* ... */
+const rows = await execute({ env, client })
+// Or omit `client` to get the final generated SPARQL query string:
+const sparqlString = await execute({ env })
 ```
 
 #### Base IRI via import attributes
