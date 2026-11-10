@@ -5,7 +5,9 @@ description: Configure Node.js runtime imports of SPARQL query and update module
 
 # Node.js SPARQL loader
 
-Install `node-loader-sparql` and `sparqlc` in the consuming project. Use Node.js 24 or newer, matching the package engine requirement.
+Install `node-loader-sparql` in the consuming project. It declares `sparqlc` as a dependency; using the loader does not by itself require a separate direct `sparqlc` dependency. Use Node.js 24 or newer, matching the package engine requirement.
+
+Generated executors contain bare imports of `@rdfjs/term-map`, `sparqlc/runtime.js`, and `sparqlc/processor.js`, plus a dynamic import of `sparqljs`. The Node loader returns that generated code at the query module URL without rewriting those imports. If execution reports a missing module, check the failing specifier's resolution from that query module with the application's loader or bundler before changing dependencies. Do not infer a missing direct dependency merely from `package.json` when the query already imports and executes successfully.
 
 Register the loader before importing queries:
 

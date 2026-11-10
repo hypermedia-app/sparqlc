@@ -5,7 +5,7 @@ description: Enable query-specific TypeScript editor inference for SPARQL import
 
 # SPARQL editor types
 
-Install `ts-plugin-sparqlc` and `sparqlc` in the consuming project. Add the plugin to the existing tsconfig without replacing other compiler options or plugins:
+Install `ts-plugin-sparqlc` as a development dependency. It declares `sparqlc` as a dependency; using the editor plugin does not by itself require a separate direct `sparqlc` dependency. Add the plugin to the existing tsconfig without replacing other compiler options or plugins:
 
 ```json
 {
@@ -18,13 +18,15 @@ Install `ts-plugin-sparqlc` and `sparqlc` in the consuming project. Add the plug
 
 Use module resolution compatible with the project (`Bundler` for bundled applications or `NodeNext` for Node ESM). Ensure the editor uses the project's TypeScript installation, then reload its language service after changing plugin configuration.
 
-Import `.rq` and `.ru` files normally. The plugin generates virtual `foo.d.rq.ts` and `foo.d.ru.ts` declarations from their contents, including executor types, parameter information, and result bindings. These declarations are held in memory; do not create placeholder declarations that hide query-specific inference.
+Import `.rq` and `.ru` files normally. The plugin generates virtual `foo.d.rq.ts` and `foo.d.ru.ts` declarations from their contents, including executor types, parameter information, and result bindings. These declarations are held in memory; do not create placeholder declarations that hide query-specific inference. The generated declarations import types from `sparqlc` and `@rdfjs/types`. If the editor reports an unresolved type import, check resolution from the virtual query declaration in the actual project before changing dependencies. Declare `sparqlc` directly when needed for explicit application API/type imports or the fallback type configuration below; do not infer that it is missing solely from the absence of a direct dependency entry.
 
 ## Separate editor, build, and runtime support
 
 Language service plugins supply editor types. Plain `tsc` does not load this plugin. Use `sparqlc-tsc` from `sparqlc-cli` when command-line builds or CI need inferred query types and query asset copying.
 
 If only generic fallback declarations are desired, expose the `sparqlc` types through `compilerOptions.types` or a triple-slash type reference. Generic fallback declarations do not provide query-specific inference.
+
+A successful bundler build does not establish that the editor plugin loaded or that TypeScript semantic checks passed. Keep the application's lint, build, and type-check results separate; report dependency declaration failures separately from query inference errors.
 
 Execution requires `node-loader-sparql` or a bundler integration such as `vite-plugin-sparql` or `esbuild-plugin-sparql`. Type inference alone does not transform or load query files.
 
