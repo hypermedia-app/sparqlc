@@ -1,5 +1,11 @@
 # sparqlc
 
+## 0.3.1
+
+### Patch Changes
+
+- 2b52118: Ship an agent skill in each package with guidance for configuring and using its SPARQL integration.
+
 ## 0.3.0
 
 ### Minor Changes
