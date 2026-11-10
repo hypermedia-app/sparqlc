@@ -1,5 +1,11 @@
 # ts-plugin-sparqlc
 
+## 0.1.7
+
+### Patch Changes
+
+- 78057dc: Updated skills
+
 ## 0.1.6
 
 ### Patch Changes
