@@ -5,3 +5,4 @@ node_modules/
 coverage/
 .vitest-attachments/
 !packages/*/bin/*.js
+.agents/skills/*
