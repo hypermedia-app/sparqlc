@@ -1,5 +1,13 @@
 # ts-plugin-sparqlc
 
+## 0.1.6
+
+### Patch Changes
+
+- 2b52118: Ship an agent skill in each package with guidance for configuring and using its SPARQL integration.
+- Updated dependencies [2b52118]
+  - sparqlc@0.3.1
+
 ## 0.1.5
 
 ### Patch Changes
