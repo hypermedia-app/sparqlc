@@ -1,5 +1,11 @@
 # node-loader-sparql
 
+## 0.2.4
+
+### Patch Changes
+
+- 78057dc: Updated skills
+
 ## 0.2.3
 
 ### Patch Changes
