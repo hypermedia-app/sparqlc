@@ -84,3 +84,20 @@ For detailed guides, configuration options, and API documentation, refer to the 
 ## License
 
 MIT © Tomasz Pluskiewicz
+
+## Agent skills
+
+Each package ships a skill under `skills/<package-name>/SKILL.md` with guidance for using that integration. Install skills from this repository with:
+
+```sh
+npx skills add hypermedia-app/sparqlc
+```
+
+For local development, install the workspace skills for Codex and validate their sources:
+
+```sh
+npm run skills:install
+npm run skills:check
+```
+
+The installer targets project-local Codex skills; use `npm exec -- skills add ./packages` to choose another agent interactively. Validation also runs in CI with strict checks and no external security scanner.
