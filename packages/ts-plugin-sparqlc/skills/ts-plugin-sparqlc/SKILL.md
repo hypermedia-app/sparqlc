@@ -5,7 +5,7 @@ description: Enable query-specific TypeScript editor inference for SPARQL import
 
 # SPARQL editor types
 
-Install `ts-plugin-sparqlc` and `sparqlc` in the consuming project. Add the plugin to the existing tsconfig without replacing other compiler options or plugins:
+Install `ts-plugin-sparqlc` as a development dependency and `sparqlc` as an application dependency. The plugin depends on sparqlc, so npm may already hoist a usable copy; direct installation provides reliable resolution for generated executors and their type imports from the application's query module location, including isolated dependency layouts. It also supports explicit sparqlc API/type imports and generic fallback declarations. Add the plugin to the existing tsconfig without replacing other compiler options or plugins:
 
 ```json
 {
@@ -25,6 +25,8 @@ Import `.rq` and `.ru` files normally. The plugin generates virtual `foo.d.rq.ts
 Language service plugins supply editor types. Plain `tsc` does not load this plugin. Use `sparqlc-tsc` from `sparqlc-cli` when command-line builds or CI need inferred query types and query asset copying.
 
 If only generic fallback declarations are desired, expose the `sparqlc` types through `compilerOptions.types` or a triple-slash type reference. Generic fallback declarations do not provide query-specific inference.
+
+A successful bundler build does not establish that the editor plugin loaded or that TypeScript semantic checks passed. Keep the application's lint, build, and type-check results separate; report dependency declaration failures separately from query inference errors.
 
 Execution requires `node-loader-sparql` or a bundler integration such as `vite-plugin-sparql` or `esbuild-plugin-sparql`. Type inference alone does not transform or load query files.
 

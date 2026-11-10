@@ -5,7 +5,7 @@ description: Configure Node.js runtime imports of SPARQL query and update module
 
 # Node.js SPARQL loader
 
-Install `node-loader-sparql` and `sparqlc` in the consuming project. Use Node.js 24 or newer, matching the package engine requirement.
+Install `node-loader-sparql` and `sparqlc` in the consuming project. The loader depends on `sparqlc`, but generated executors import `sparqlc/*` from the query module location. npm hoisting can make the transitive dependency sufficient in an existing application; a direct dependency makes that resolution reliable under isolated dependency layouts and also supports application imports of sparqlc APIs, types, or fallback declarations. Check the actual resolution before attributing a runtime failure solely to a missing direct entry. Use Node.js 24 or newer, matching the package engine requirement.
 
 Register the loader before importing queries:
 
