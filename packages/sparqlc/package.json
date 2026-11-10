@@ -6,7 +6,8 @@
   "files": [
     "CHANGELOG.md",
     "*.js",
-    "*.d.ts"
+    "*.d.ts",
+    "skills"
   ],
   "scripts": {
     "build": "tsc",

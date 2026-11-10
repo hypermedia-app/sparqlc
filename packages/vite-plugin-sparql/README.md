@@ -21,7 +21,7 @@ import { defineConfig } from 'vite'
 import sparql from 'vite-plugin-sparql'
 
 export default defineConfig({
-  plugins: [sparql()],
+  plugins: [sparql],
 })
 ```
 
